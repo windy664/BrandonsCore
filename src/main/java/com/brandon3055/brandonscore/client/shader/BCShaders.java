@@ -11,9 +11,9 @@ import net.covers1624.quack.util.CrashLock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.event.RegisterShadersEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 
 /**
  * Created by brandon3055 on 15/05/2022
@@ -54,17 +54,16 @@ public class BCShaders {
 
     public static CCShaderInstance posColourTexAlpha0;
 
-    public static void init() {
+    public static void init(IEventBus modBus) {
         LOCK.lock();
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-        CONTRIB_BASE_SHADER.register(bus);
-        WINGS_WEB_SHADER.register(bus);
-        WINGS_BONE_SHADER.register(bus);
-        VET_BADGE_SHADER.register(bus);
-        CHAOS_ENTITY_SHADER.register(bus);
-        BADGE_OUTLINE_SHADER.register(bus);
-        BADGE_CORE_SHADER.register(bus);
-        BADGE_FOIL_SHADER.register(bus);
+        CONTRIB_BASE_SHADER.register(modBus);
+        WINGS_WEB_SHADER.register(modBus);
+        WINGS_BONE_SHADER.register(modBus);
+        VET_BADGE_SHADER.register(modBus);
+        CHAOS_ENTITY_SHADER.register(modBus);
+        BADGE_OUTLINE_SHADER.register(modBus);
+        BADGE_CORE_SHADER.register(modBus);
+        BADGE_FOIL_SHADER.register(modBus);
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BCShaders::onRegisterShaders);
     }

@@ -14,12 +14,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 import java.util.*;
 
@@ -34,7 +32,7 @@ public class BlockToStackHelper {
 
     public static void init() {
         LOCK.lock();
-        MinecraftForge.EVENT_BUS.addListener(BlockToStackHelper::entityJoinWorld);
+        NeoForge.EVENT_BUS.addListener(BlockToStackHelper::entityJoinWorld);
     }
 
     public static void entityJoinWorld(EntityJoinLevelEvent event) {

@@ -171,7 +171,9 @@ public class FilterItem extends FilterBase {
         compound.putBoolean("whitelist_mode", whitelistMode);
         compound.putString("tag_string", tagString);
         compound.putBoolean("tag_mode", tagMode);
-        compound.put("filter_stack", filterStack.serializeNBT());
+        CompoundTag tag = new CompoundTag();
+        filterStack.save(tag);
+        compound.put("filter_stack", tag);
         compound.putBoolean("fuzzy_match", fuzzyMatch);
         compound.putBoolean("match_count", matchCount);
         compound.putBoolean("filter_blocks", filterBlocks);

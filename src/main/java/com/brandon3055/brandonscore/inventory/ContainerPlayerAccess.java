@@ -15,8 +15,8 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
@@ -36,7 +36,7 @@ public class ContainerPlayerAccess extends AbstractContainerMenu {
 
     //Client Side Constructor
     public ContainerPlayerAccess(int windowId, Inventory playerInv, FriendlyByteBuf extraData) {
-        super(BCContent.containerPlayerAccess, windowId);
+        super(BCContent.MENU_PLAYER_ACCESS.get(), windowId);
         this.player = playerInv.player;
         playerAccess = null;
         targetInventory = new InventorySimple(41);
@@ -44,7 +44,7 @@ public class ContainerPlayerAccess extends AbstractContainerMenu {
     }
 
     public ContainerPlayerAccess(int id, Inventory playerInv, Player playerAccess, MinecraftServer server) {
-        super(BCContent.containerPlayerAccess, id);
+        super(BCContent.MENU_PLAYER_ACCESS.get(), id);
         this.player = playerInv.player;
         this.playerAccess = playerAccess;
         targetInventory = playerAccess.getInventory();
@@ -150,7 +150,7 @@ public class ContainerPlayerAccess extends AbstractContainerMenu {
         }
 
         @Nullable
-        @OnlyIn(Dist.CLIENT)
+        @OnlyIn (Dist.CLIENT)
         public String getSlotTexture() {
 //            return PlayerContainer.ARMOR_SLOT_TEXTURES[eSlot.getIndex()];
             return InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS.toString();//TODO ARMOR_SLOT_TEXTURES[eSlot.getIndex()];

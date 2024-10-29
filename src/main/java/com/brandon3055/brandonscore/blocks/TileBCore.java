@@ -10,15 +10,12 @@ import com.brandon3055.brandonscore.api.power.IOPStorage;
 import com.brandon3055.brandonscore.api.power.IOTracker;
 import com.brandon3055.brandonscore.api.power.OPStorage;
 import com.brandon3055.brandonscore.inventory.ContainerBCTile;
-import com.brandon3055.brandonscore.inventory.ContainerBCore;
 import com.brandon3055.brandonscore.inventory.TileItemStackHandler;
 import com.brandon3055.brandonscore.lib.IRSSwitchable;
 import com.brandon3055.brandonscore.lib.IRSSwitchable.RSMode;
 import com.brandon3055.brandonscore.lib.datamanager.*;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
-import com.brandon3055.brandonscore.network.ServerPacketHandler;
 import com.brandon3055.brandonscore.utils.EnergyUtils;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -35,16 +32,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.fml.util.thread.EffectiveSide;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -82,7 +77,7 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
 
     public TileBCore(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        MinecraftForge.EVENT_BUS.post(new TileBCoreInitEvent(this));
+        NeoForge.EVENT_BUS.post(new TileBCoreInitEvent(this));
     }
 
     //region Data Manager
@@ -94,6 +89,10 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
 
     public TileCapabilityManager getCapManager() {
         return capManager;
+    }
+
+    protected static <T, BE extends TileBCore> void capability(RegisterCapabilitiesEvent event, Supplier<BlockEntityType<BE>> type, BlockCapability<T, Direction> capability) {
+        event.registerBlockEntity(capability, type.get(), (tile, side) -> tile.getCapManager().getCapability(capability, side));
     }
 
     /**
@@ -116,10 +115,10 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
         if (level != null && !level.isClientSide) {
             if (containerListeners) {
                 dataManager.detectAndSendChangesToListeners(getAccessingPlayers());
-                capManager.detectAndSendChangesToListeners(getAccessingPlayers());
+//                capManager.detectAndSendChangesToListeners(getAccessingPlayers());
             } else {
                 dataManager.detectAndSendChanges();
-                capManager.detectAndSendChanges();
+//                capManager.detectAndSendChanges();
             }
         }
     }
@@ -161,7 +160,7 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
                 return packet;
             }
         }
-        return new PacketCustom(BCoreNetwork.CHANNEL, BCoreNetwork.S_DUMMY_PACKET);
+        return new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.S_DUMMY_PACKET);
     }
 
     /**
@@ -185,7 +184,7 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     }
 
     public PacketCustom createClientBoundPacket(int id) {
-        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL, BCoreNetwork.C_TILE_MESSAGE);
+        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_MESSAGE);
         packet.writePos(worldPosition);
         packet.writeByte((byte) id);
         return packet;
@@ -290,10 +289,10 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     public void writeToItemStack(CompoundTag nbt, boolean willHarvest) {
         dataManager.writeToStackNBT(nbt);
         savedItemDataObjects.forEach((tagName, serializable) -> nbt.put(tagName, serializable.serializeNBT()));
-        CompoundTag capTags = capManager.serialize(true);
-        if (!capTags.isEmpty()) {
-            nbt.put("bc_caps", capTags);
-        }
+//        CompoundTag capTags = capManager.serialize(true);
+//        if (!capTags.isEmpty()) {
+//            nbt.put("bc_caps", capTags);
+//        }
         writeExtraTileAndStack(nbt);
     }
 
@@ -302,9 +301,9 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     public void readFromItemStack(CompoundTag nbt) {
         dataManager.readFromStackNBT(nbt);
         savedItemDataObjects.forEach((tagName, serializable) -> serializable.deserializeNBT(nbt.getCompound(tagName)));
-        if (nbt.contains("bc_caps")) {
-            capManager.deserialize(nbt.getCompound("bc_caps"));
-        }
+//        if (nbt.contains("bc_caps")) {
+//            capManager.deserialize(nbt.getCompound("bc_caps"));
+//        }
         readExtraTileAndStack(nbt);
     }
 
@@ -315,10 +314,10 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
      * For that you need to override read and writeToStack just be sure to pay attention to the doc for those.
      */
     public void writeExtraNBT(CompoundTag nbt) {
-        CompoundTag capTags = capManager.serialize(false);
-        if (!capTags.isEmpty()) {
-            nbt.put("bc_caps", capTags);
-        }
+//        CompoundTag capTags = capManager.serialize(false);
+//        if (!capTags.isEmpty()) {
+//            nbt.put("bc_caps", capTags);
+//        }
 
         if (!customName.isEmpty()) {
             nbt.putString("custom_name", customName);
@@ -329,9 +328,9 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     }
 
     public void readExtraNBT(CompoundTag nbt) {
-        if (nbt.contains("bc_caps")) {
-            capManager.deserialize(nbt.getCompound("bc_caps"));
-        }
+//        if (nbt.contains("bc_caps")) {
+//            capManager.deserialize(nbt.getCompound("bc_caps"));
+//        }
 
         if (nbt.contains("custom_name", 8)) {
             customName = nbt.getString("custom_name");
@@ -393,17 +392,16 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
 
     //endregion
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-        LazyOptional<T> ret = capManager.getCapability(capability, side);
-        return ret.isPresent() ? ret : super.getCapability(capability, side);
-    }
+//    @Nonnull
+//    @Override
+//    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
+//        LazyOptional<T> ret = capManager.getCapability(capability, side);
+//        return ret.isPresent() ? ret : super.getCapability(capability, side);
+//    }
 
     @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        capManager.invalidate();
+    public void invalidateCapabilities() {
+//        capManager.invalidate();
     }
 
     //region EnergyHelpers

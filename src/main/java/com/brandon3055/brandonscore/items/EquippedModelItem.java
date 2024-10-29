@@ -5,8 +5,8 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -27,7 +27,7 @@ public interface EquippedModelItem {
      * @param slimModel This will be true in the event the entity is a player with the slim model enabled.
      * @return a model implementing {@link EquippedItemModel}
      */
-    @OnlyIn(Dist.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     EquippedItemModel getExtendedModel(LivingEntity entity, ItemStack stack, @Nullable EquipmentSlot slot, HumanoidModel<?> parentModel, boolean slimModel);
 
     /**

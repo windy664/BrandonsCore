@@ -4,7 +4,7 @@ import codechicken.lib.gui.modular.sprite.Material;
 import codechicken.lib.gui.modular.sprite.ModAtlasHolder;
 import com.brandon3055.brandonscore.BCConfig;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 import java.util.HashMap;
 import java.util.Map;

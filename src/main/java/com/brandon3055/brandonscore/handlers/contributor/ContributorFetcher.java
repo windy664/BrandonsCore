@@ -7,21 +7,19 @@ import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import net.covers1624.quack.net.HttpResponseException;
 import net.covers1624.quack.net.java.JavaDownloadAction;
 import net.covers1624.quack.util.CrashLock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.DefaultUncaughtExceptionHandler;
-import net.minecraft.Util;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.DistExecutor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -77,8 +75,8 @@ public class ContributorFetcher {
 
     public void init() {
         LOCK.lock();                                              //I can do this because ClientTickEvent is server safe.
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> onTick(event)));
-        DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> onTick(event)));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> NeoForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> onTick(event)));
+        DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> NeoForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> onTick(event)));
         downloadHashes();
     }
 

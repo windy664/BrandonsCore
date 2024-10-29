@@ -1,10 +1,9 @@
 package com.brandon3055.brandonscore.datagen;
 
+import codechicken.lib.datagen.LanguageProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.data.LanguageProvider;
-
 import static com.brandon3055.brandonscore.BrandonsCore.MODID;
 
 /**
@@ -12,8 +11,8 @@ import static com.brandon3055.brandonscore.BrandonsCore.MODID;
  */
 //@formatter:off
 public class LangGenerator extends LanguageProvider {
-    public LangGenerator(DataGenerator gen) {
-        super(gen.getPackOutput(), MODID, "en_us");
+    public LangGenerator(DataGenerator gen, Side side) {
+        super(gen.getPackOutput(), MODID, "en_us", side);
     }
 
     private void addModularGui(PrefixHelper helper) {

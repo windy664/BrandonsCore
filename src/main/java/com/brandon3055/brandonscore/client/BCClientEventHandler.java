@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -34,23 +35,21 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ComputeFovModifierEvent;
-import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
+import net.neoforged.neoforge.client.event.RenderHighlightEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 
 import java.util.*;
 
 import static net.minecraft.client.renderer.RenderStateShard.*;
-import static net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_PARTICLES;
-import static net.minecraftforge.client.event.RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS;
+import static net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage.AFTER_PARTICLES;
+import static net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS;
 
 /**
  * Created by brandon3055 on 17/07/2016.
@@ -86,11 +85,11 @@ public class BCClientEventHandler {
     public static void init() {
         LOCK.lock();
 
-        MinecraftForge.EVENT_BUS.register(new BCClientEventHandler());
+        NeoForge.EVENT_BUS.register(new BCClientEventHandler());
     }
 
     @SubscribeEvent
-    public static void disconnectEvent(ClientPlayerNetworkEvent.LoggingOut event) {
+    public void disconnectEvent(ClientPlayerNetworkEvent.LoggingOut event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
             BCEventHandler.noClipPlayers.remove(mc.player.getUUID());
@@ -174,10 +173,10 @@ public class BCClientEventHandler {
         double camY = vec3.y();
         double camZ = vec3.z();
 
-        for (LevelRenderer.RenderChunkInfo renderChunkInfo : levelRenderer.renderChunksInFrustum) {
-            List<BlockEntity> list = renderChunkInfo.chunk.getCompiledChunk().getRenderableBlockEntities();
+        for (SectionRenderDispatcher.RenderSection renderChunkInfo : levelRenderer.visibleSections) {
+            List<BlockEntity> list = renderChunkInfo.getCompiled().getRenderableBlockEntities();
             for (BlockEntity tile : list) {
-                if (!event.getFrustum().isVisible(tile.getRenderBoundingBox())) continue;
+                if (!ClientHooks.isBlockEntityRendererVisible(levelRenderer.blockEntityRenderDispatcher, tile, event.getFrustum())) continue;
                 BlockEntityRenderer<BlockEntity> renderer = tileRenderDispatcher.getRenderer(tile);
                 if (renderer instanceof BlockEntityRendererTransparent<BlockEntity> rendererTransparent) {
                     BlockPos pos = tile.getBlockPos();
@@ -191,7 +190,7 @@ public class BCClientEventHandler {
 
         synchronized (levelRenderer.globalBlockEntities) {
             for (BlockEntity tile : levelRenderer.globalBlockEntities) {
-                if (!event.getFrustum().isVisible(tile.getRenderBoundingBox())) continue;
+                if (!ClientHooks.isBlockEntityRendererVisible(levelRenderer.blockEntityRenderDispatcher, tile, event.getFrustum())) continue;
                 BlockEntityRenderer<BlockEntity> renderer = tileRenderDispatcher.getRenderer(tile);
                 if (renderer instanceof BlockEntityRendererTransparent<BlockEntity> rendererTransparent) {
                     BlockPos blockpos3 = tile.getBlockPos();

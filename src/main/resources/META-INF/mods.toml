@@ -11,26 +11,26 @@ license="CoFH \"Don't Be a Jerk\" License"
     updateJSONURL="https://version-check.covers1624.net/check/?mod=BrandonsCore&mc=${mc_version}"
 
 [[dependencies.brandonscore]]
-    modId="forge"
-    mandatory=true
+    modId="neoforge"
+    type="required"
     versionRange="[${neo_version},)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.brandonscore]]
     modId="minecraft"
-    mandatory=true
-    versionRange="[1.20.1]"
+    type="required"
+    versionRange="[1.20.4]"
     ordering="NONE"
     side="BOTH"
 [[dependencies.brandonscore]]
     modId="codechickenlib"
-    mandatory=true
+    type="required"
     versionRange="${ccl_version}"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.brandonscore]]
 	modId="projectintelligence"
-	mandatory=false
-	versionRange="[${pi_version},)"
+    type="optional"
+    versionRange="[${pi_version},)"
 	ordering="NONE"
 	side="BOTH"

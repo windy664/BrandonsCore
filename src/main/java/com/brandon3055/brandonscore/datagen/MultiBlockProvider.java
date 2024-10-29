@@ -3,6 +3,7 @@ package com.brandon3055.brandonscore.datagen;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
@@ -10,7 +11,6 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -101,11 +101,11 @@ public abstract class MultiBlockProvider implements DataProvider {
         }
 
         public Builder key(char key, Block block) {
-            return key(key, "block", ForgeRegistries.BLOCKS.getKey(block).toString());
+            return key(key, "block", BuiltInRegistries.BLOCK.getKey(block).toString());
         }
 
         public Builder key(char key, Supplier<? extends Block> block) {
-            return key(key, "block", ForgeRegistries.BLOCKS.getKey(block.get()).toString());
+            return key(key, "block", BuiltInRegistries.BLOCK.getKey(block.get()).toString());
         }
 
         /**

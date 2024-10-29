@@ -1,7 +1,7 @@
 package com.brandon3055.brandonscore.api.event;
 
 import com.brandon3055.brandonscore.blocks.TileBCore;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 public class TileBCoreInitEvent extends Event {
 

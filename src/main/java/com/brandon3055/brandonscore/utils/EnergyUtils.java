@@ -7,16 +7,20 @@ import com.brandon3055.brandonscore.capability.OPWrappers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -24,12 +28,12 @@ import java.util.List;
  * Created by brandon3055 on 15/11/2016.
  */
 public class EnergyUtils {
+    private static final Logger LOGGER = LogManager.getLogger();
 
     // ================= Get Storage =================
 
     public static IOPStorage getStorage(BlockEntity tile, Direction side) {
         if (tile.getLevel().isClientSide) {
-            LogHelperBC.bigDev("Attempt to do energy operation client side!");
             return null;
         }
 
@@ -44,23 +48,35 @@ public class EnergyUtils {
         return null;
     }
 
-    /**
-     * This should not be used on tiles or items as it will miss anything that implements the RF API.
-     * This is only public to allow for other ICapabilityProvider's
-     */
-    public static IOPStorage getStorageFromProvider(ICapabilityProvider provider, Direction side) {
-        LazyOptional<IOPStorage> op = provider.getCapability(CapabilityOP.OP, side);
-        if (op.isPresent()) {
-            return op.orElseThrow(ImpossibleException::new);
+    public static IOPStorage getStorageFromProvider(ItemStack stack, @Nullable Direction side) {
+        IOPStorage opStorage = CapabilityOP.ITEM.getCapability(stack, null);
+        if (opStorage != null) {
+            return opStorage;
         }
-        LazyOptional<IEnergyStorage> fe = provider.getCapability(ForgeCapabilities.ENERGY, side);
-        if (fe.isPresent()) {
-            return new OPWrappers.FE(fe.orElseThrow(ImpossibleException::new));
+        IEnergyStorage energyStorage = Capabilities.EnergyStorage.ITEM.getCapability(stack, null);
+        if (energyStorage != null) {
+            return new OPWrappers.FE(energyStorage);
         }
         return null;
     }
 
-    // ================= Receive =================
+    public static IOPStorage getStorageFromProvider(Level level, BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+        IOPStorage opStorage = CapabilityOP.BLOCK.getCapability(level, pos, state, blockEntity, direction);
+        if (opStorage != null) {
+            return opStorage;
+        }
+        IEnergyStorage energyStorage = Capabilities.EnergyStorage.BLOCK.getCapability(level, pos, state, blockEntity, direction);
+        if (energyStorage != null) {
+            return new OPWrappers.FE(energyStorage);
+        }
+        return null;
+    }
+
+    public static IOPStorage getStorageFromProvider(BlockEntity blockEntity, @Nullable Direction direction) {
+        return getStorageFromProvider(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+    }
+
+        // ================= Receive =================
 
     public static long insertEnergy(BlockEntity tile, long energy, Direction side, boolean simulate) {
         IOPStorage storage = getStorage(tile, side);
@@ -78,17 +94,17 @@ public class EnergyUtils {
         return 0;
     }
 
-    /**
-     * This should not be used on tiles or items as it will miss anything that implements the RF API.
-     * This is only public to allow for other ICapabilityProvider's
-     */
-    public static long insertEnergyIntoProvider(ICapabilityProvider provider, long energy, Direction side, boolean simulate) {
-        IOPStorage storage = getStorageFromProvider(provider, side);
-        if (storage != null && storage.canReceive()) {
-            return storage.receiveOP(energy, simulate);
-        }
-        return 0;
-    }
+//    /**
+//     * This should not be used on tiles or items as it will miss anything that implements the RF API.
+//     * This is only public to allow for other ICapabilityProvider's
+//     */
+//    public static long insertEnergyIntoProvider(ICapabilityProvider provider, long energy, Direction side, boolean simulate) {
+//        IOPStorage storage = getStorageFromProvider(provider, side);
+//        if (storage != null && storage.canReceive()) {
+//            return storage.receiveOP(energy, simulate);
+//        }
+//        return 0;
+//    }
 
     // ================= Extract =================
 
@@ -108,17 +124,17 @@ public class EnergyUtils {
         return 0;
     }
 
-    /**
-     * This should not be used on tiles or items as it will miss anything that implements the RF API.
-     * This is only public to allow for other ICapabilityProvider's
-     */
-    public static long extractEnergyFromProvider(ICapabilityProvider provider, long energy, Direction side, boolean simulate) {
-        IOPStorage storage = getStorageFromProvider(provider, side);
-        if (storage != null && storage.canExtract()) {
-            return storage.extractOP(energy, simulate);
-        }
-        return 0;
-    }
+//    /**
+//     * This should not be used on tiles or items as it will miss anything that implements the RF API.
+//     * This is only public to allow for other ICapabilityProvider's
+//     */
+//    public static long extractEnergyFromProvider(ICapabilityProvider provider, long energy, Direction side, boolean simulate) {
+//        IOPStorage storage = getStorageFromProvider(provider, side);
+//        if (storage != null && storage.canExtract()) {
+//            return storage.extractOP(energy, simulate);
+//        }
+//        return 0;
+//    }
 
     // ================= Transfer =================
 
@@ -231,7 +247,7 @@ public class EnergyUtils {
 
     // ================= Utils =================
 
-    @OnlyIn(Dist.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public static void addEnergyInfo(ItemStack stack, List<Component> list) {
         IOPStorage storage = getStorage(stack);
         if (storage != null) {

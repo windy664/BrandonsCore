@@ -1,6 +1,6 @@
 package com.brandon3055.brandonscore.worldentity;
 
-import net.minecraftforge.event.TickEvent;
+import net.neoforged.neoforge.event.TickEvent;
 
 /**
  * Created by brandon3055 on 15/12/20

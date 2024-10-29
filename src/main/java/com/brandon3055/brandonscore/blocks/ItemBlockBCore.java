@@ -1,11 +1,8 @@
 package com.brandon3055.brandonscore.blocks;
 
-import com.brandon3055.brandonscore.lib.IBCoreBlock;
 import com.brandon3055.brandonscore.lib.ITilePlaceListener;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,11 +30,11 @@ public class ItemBlockBCore extends BlockItem {
         return placed;
     }
 
-    @Override
-    public CompoundTag getShareTag(ItemStack stack) {
-        if (getBlock() instanceof IBCoreBlock && ((IBCoreBlock) getBlock()).overrideShareTag()) {
-            return ((IBCoreBlock) getBlock()).getNBTShareTag(stack);
-        }
-        return super.getShareTag(stack);
-    }
+//    @Override
+//    public CompoundTag getShareTag(ItemStack stack) {
+//        if (getBlock() instanceof IBCoreBlock && ((IBCoreBlock) getBlock()).overrideShareTag()) {
+//            return ((IBCoreBlock) getBlock()).getNBTShareTag(stack);
+//        }
+//        return super.getShareTag(stack);
+//    }
 }

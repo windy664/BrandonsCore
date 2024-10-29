@@ -5,7 +5,7 @@ import codechicken.lib.data.MCDataOutput;
 import com.brandon3055.brandonscore.lib.IMCDataSerializable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.Locale;
 

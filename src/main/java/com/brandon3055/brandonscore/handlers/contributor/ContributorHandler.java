@@ -12,9 +12,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,8 +41,8 @@ public class ContributorHandler {
     public static void init() {
         LOCK.lock();
         FETCHER.init();
-        MinecraftForge.EVENT_BUS.addListener(ContributorHandler::onClientTick);
-        MinecraftForge.EVENT_BUS.addListener(ContributorHandler::onPlayerLogin);
+        NeoForge.EVENT_BUS.addListener(ContributorHandler::onClientTick);
+        NeoForge.EVENT_BUS.addListener(ContributorHandler::onPlayerLogin);
     }
 
     //ClientPlayerNetworkEvent.LoggedInEvent, Registered in ClientInit.

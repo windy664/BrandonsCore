@@ -33,6 +33,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -41,8 +42,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.joml.Vector3f;
 
 import java.util.Map;
 
@@ -109,9 +108,9 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
         f3Bone = new WingBoneRenderer(f3, new Vector3(-1.5, 31, 2.8), true);
         f3Bone.shell = new WingBoneRenderer(f3Shell, Vector3.ZERO, false);
 
-        chestpiece1 = ForgeRegistries.ITEMS.getValue(new ResourceLocation("draconicevolution:wyvern_chestpiece"));
-        chestpiece2 = ForgeRegistries.ITEMS.getValue(new ResourceLocation("draconicevolution:draconic_chestpiece"));
-        chestpiece3 = ForgeRegistries.ITEMS.getValue(new ResourceLocation("draconicevolution:chaotic_chestpiece"));
+        chestpiece1 = BuiltInRegistries.ITEM.get(new ResourceLocation("draconicevolution:wyvern_chestpiece"));
+        chestpiece2 = BuiltInRegistries.ITEM.get(new ResourceLocation("draconicevolution:draconic_chestpiece"));
+        chestpiece3 = BuiltInRegistries.ITEM.get(new ResourceLocation("draconicevolution:chaotic_chestpiece"));
     }
 
     @Override

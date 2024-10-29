@@ -8,9 +8,9 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.DistExecutor;
 
 /**
  * Created by brandon3055 on 23/11/2022
@@ -68,7 +68,7 @@ public class Animations {
         playerExpiry = 0;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void tick() {
         Boolean paused = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientOnly::isClientPaused);
         if (paused != null && paused) return;

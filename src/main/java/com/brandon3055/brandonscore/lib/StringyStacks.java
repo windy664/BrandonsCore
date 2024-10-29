@@ -1,13 +1,14 @@
 package com.brandon3055.brandonscore.lib;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -235,13 +236,13 @@ public class StringyStacks {
         }
 
         ResourceLocation registryName = new ResourceLocation(stackString);
-        Item item = ForgeRegistries.ITEMS.getValue(registryName);
-        Block block = ForgeRegistries.BLOCKS.getValue(registryName);
-        if (item == null && block == Blocks.AIR) {
+        Item item = BuiltInRegistries.ITEM.get(registryName);
+        Block block = BuiltInRegistries.BLOCK.get(registryName);
+        if (item == Items.AIR && block == Blocks.AIR) {
             return defaultIfInputInvalid;
         } else {
             ItemStack itemStack;
-            if (item != null) {
+            if (item != Items.AIR) {
                 itemStack = new ItemStack(item, count);
             } else {
                 itemStack = new ItemStack(block, count);
@@ -260,10 +261,10 @@ public class StringyStacks {
             return "";
         }
 
-        String stackString = ForgeRegistries.ITEMS.getKey(stack.getItem()).toString();
+        String stackString = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
         if (withNBT || withForgeCaps) {
-            CompoundTag stackTag = stack.serializeNBT();
+            CompoundTag stackTag = stack.save(new CompoundTag());
             CompoundTag nbt = null;
             CompoundTag caps = null;
             if (withNBT && stackTag.contains("tag", 10)) {
@@ -311,13 +312,13 @@ public class StringyStacks {
     public static ItemStack legacyStackConverter(String itemString, int count, int damage, @Nullable CompoundTag nbt) {
         try {
             ResourceLocation itemID = new ResourceLocation(itemString);
-            Item item = ForgeRegistries.ITEMS.getValue(itemID);
-            Block block = ForgeRegistries.BLOCKS.getValue(itemID);
-            if (item == null && block == Blocks.AIR) {
+            Item item = BuiltInRegistries.ITEM.get(itemID);
+            Block block = BuiltInRegistries.BLOCK.get(itemID);
+            if (item == Items.AIR && block == Blocks.AIR) {
                 return ItemStack.EMPTY;
             } else {
                 ItemStack itemStack;
-                if (item != null) {
+                if (item != Items.AIR) {
                     itemStack = new ItemStack(item, count);
                 } else {
                     itemStack = new ItemStack(block, count);

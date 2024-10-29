@@ -1,7 +1,7 @@
 package com.brandon3055.brandonscore.api.power;
 
 import com.brandon3055.brandonscore.capability.CapabilityOP;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nullable;
 

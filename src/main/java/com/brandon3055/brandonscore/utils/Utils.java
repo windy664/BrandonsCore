@@ -1,28 +1,21 @@
 package com.brandon3055.brandonscore.utils;
 
 import com.brandon3055.brandonscore.lib.Vec3D;
-import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.server.level.ChunkHolder;
-import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -172,21 +165,22 @@ public class Utils {
 //        world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 //    }//Just use the method in world directly
 
-    /**
-     * Determine the orientation of a blocks based on the position of the entity that placed it.
-     */
-    public static int determineOrientation(int x, int y, int z, LivingEntity entity) {
-        if (Mth.abs((float) entity.getX() - (float) x) < 2.0F && Mth.abs((float) entity.getZ() - (float) z) < 2.0F) {
-            double d0 = entity.getY() + 1.82D - (double) entity.getMyRidingOffset();
-
-            if (d0 - (double) y > 2.0D) return 0;
-
-            if ((double) y - d0 > 0.0D) return 1;
-        }
-
-        int l = Mth.floor((double) (entity.getYRot() * 4.0F / 360.0F) + 0.5D) & 3;
-        return l == 0 ? 3 : (l == 1 ? 4 : (l == 2 ? 2 : (l == 3 ? 5 : 0)));
-    }
+//    /**
+//     * Determine the orientation of a blocks based on the position of the entity that placed it.
+//     */
+//    public static int determineOrientation(int x, int y, int z, LivingEntity entity) {
+//        if (Mth.abs((float) entity.getX() - (float) x) < 2.0F && Mth.abs((float) entity.getZ() - (float) z) < 2.0F) {
+//            double d0 = entity.getY() + 1.82D - (double) entity.getMyRidingOffset();
+//
+//
+//            if (d0 - (double) y > 2.0D) return 0;
+//
+//            if ((double) y - d0 > 0.0D) return 1;
+//        }
+//
+//        int l = Mth.floor((double) (entity.getYRot() * 4.0F / 360.0F) + 0.5D) & 3;
+//        return l == 0 ? 3 : (l == 1 ? 4 : (l == 2 ? 2 : (l == 3 ? 5 : 0)));
+//    }
 
     /**
      * Simple method to convert a Double object to a primitive int
@@ -391,7 +385,7 @@ public class Utils {
     public static Fluid lookupFluidForBlock(Block block) {
         if (fluidBlocks == null) {
             BiMap<Block, Fluid> tmp = HashBiMap.create();
-            for (Fluid fluid : ForgeRegistries.FLUIDS.getValues()) {
+            for (Fluid fluid : BuiltInRegistries.FLUID) {
                 Block fluidBlock = fluid.defaultFluidState().createLegacyBlock().getBlock();
                 if (fluidBlock != Blocks.AIR) {
                     tmp.put(fluidBlock, fluid);

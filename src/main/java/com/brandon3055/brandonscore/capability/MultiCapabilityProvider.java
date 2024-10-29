@@ -2,13 +2,10 @@ package com.brandon3055.brandonscore.capability;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.neoforge.capabilities.ItemCapability;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -16,38 +13,35 @@ import java.util.Objects;
 /**
  * Created by brandon3055 on 17/4/20.
  */
-public class MultiCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
+public class MultiCapabilityProvider implements INBTSerializable<CompoundTag> {
 
-    private Map<Capability<?>, Object> capabilityMap = new HashMap<>();
+    private Map<ItemCapability<?, Void>, Object> capabilityMap = new HashMap<>();
     private Map<String, INBTSerializable<CompoundTag>> nameMap = new HashMap<>();
 
     public MultiCapabilityProvider() {}
 
-    public MultiCapabilityProvider(INBTSerializable<CompoundTag> capInstance, String name, Capability<?>... capabilities) {
+    public MultiCapabilityProvider(INBTSerializable<CompoundTag> capInstance, String name, ItemCapability<?, Void>... capabilities) {
         addCapability(capInstance, name, capabilities);
     }
 
-    public void addCapability(INBTSerializable<CompoundTag> capInstance, String name, Capability<?>... capabilities) {
-        if (CapabilityOP.OP == null) return;
+    public void addCapability(INBTSerializable<CompoundTag> capInstance, String name, ItemCapability<?, Void>... capabilities) {
         this.nameMap.put(name, capInstance);
-        for (Capability<?> cap : capabilities) {
+        for (ItemCapability<?, Void> cap : capabilities) {
             Objects.requireNonNull(cap);
             this.capabilityMap.put(cap, capInstance);
         }
     }
 
-    public <T> void addUnsavedCap(Capability<T> capability, T capInstance) {
-        if (CapabilityOP.OP == null) return;
+    public <T> void addUnsavedCap(ItemCapability<T, Void> capability, T capInstance) {
         this.capabilityMap.put(capability, capInstance);
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    @Nullable
+    public <T> T getCapability(ItemCapability<T, Void> cap, @Nullable Direction side) {
         if (capabilityMap.containsKey(cap)) {
-            return LazyOptional.of(() -> capabilityMap.get(cap)).cast();
+            return (T)capabilityMap.get(cap);
         }
-        return LazyOptional.empty();
+        return null;
     }
 
     @Override

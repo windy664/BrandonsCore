@@ -6,21 +6,19 @@ import com.brandon3055.brandonscore.api.math.Vector2;
 import com.brandon3055.brandonscore.client.gui.HudConfigGui;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.covers1624.quack.util.CrashLock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryBuilder;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
+import net.neoforged.neoforge.registries.RegistryBuilder;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -35,18 +33,18 @@ public class HudManager {
     private static final CrashLock LOCK = new CrashLock("Already Initialized");
 
     public static final ResourceKey<Registry<AbstractHudElement>> HUD_TYPE = ResourceKey.createRegistryKey(new ResourceLocation(MODID, "hud_elements"));
-    public static IForgeRegistry<AbstractHudElement> HUD_REGISTRY;
+    public static Registry<AbstractHudElement> HUD_REGISTRY;
     protected static Map<ResourceLocation, AbstractHudElement> hudElements = new HashMap<>();
 
-    public static void init() {
+    public static void init(IEventBus modBus) {
         LOCK.lock();
 
-        MinecraftForge.EVENT_BUS.addListener(HudManager::onDrawOverlayPre);
-        MinecraftForge.EVENT_BUS.addListener(HudManager::onDrawOverlayPost);
-        MinecraftForge.EVENT_BUS.addListener(HudManager::onClientTick);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(HudManager::createRegistry);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(HudManager::onLoadComplete);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(HudManager::registerBuiltIn);
+        NeoForge.EVENT_BUS.addListener(HudManager::onDrawOverlayPre);
+        NeoForge.EVENT_BUS.addListener(HudManager::onDrawOverlayPost);
+        NeoForge.EVENT_BUS.addListener(HudManager::onClientTick);
+        modBus.addListener(HudManager::createRegistry);
+        modBus.addListener(HudManager::onLoadComplete);
+        modBus.addListener(HudManager::registerBuiltIn);
     }
 
     public static void onDrawOverlayPre(RenderGuiEvent.Pre event) {
@@ -64,7 +62,6 @@ public class HudManager {
     }
 
     public static void onDrawOverlayPost(RenderGuiEvent.Post event) {
-        if (event.isCanceled()) return;
         GuiRender render = GuiRender.convert(event.getGuiGraphics());
         boolean configuring = Minecraft.getInstance().screen instanceof HudConfigGui.Screen;
         for (AbstractHudElement element : hudElements.values()) {
@@ -86,16 +83,15 @@ public class HudManager {
     }
 
     private static void createRegistry(NewRegistryEvent event) {
-        event.create(new RegistryBuilder<AbstractHudElement>()
-                .setName(HUD_TYPE.location())
-                .disableSaving()
-                .disableSync(), ts -> HUD_REGISTRY = ts);
+        HUD_REGISTRY = event.create(new RegistryBuilder<>(HUD_TYPE)
+                .sync(false)
+        );
     }
 
     private static void onLoadComplete(FMLLoadCompleteEvent event) {
         hudElements.clear();
-        for (ResourceLocation key : HUD_REGISTRY.getKeys()) {
-            hudElements.put(key, HUD_REGISTRY.getValue(key));
+        for (ResourceLocation key : HUD_REGISTRY.keySet()) {
+            hudElements.put(key, HUD_REGISTRY.get(key));
         }
         HudData.loadSettings();
     }

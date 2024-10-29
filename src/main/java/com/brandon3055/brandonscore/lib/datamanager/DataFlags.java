@@ -1,6 +1,5 @@
 package com.brandon3055.brandonscore.lib.datamanager;
 
-import com.brandon3055.brandonscore.inventory.ContainerBCore;
 import com.google.common.annotations.Beta;
 
 /**

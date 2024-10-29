@@ -7,9 +7,9 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * Created by brandon3055 on 24/01/2023
@@ -21,7 +21,7 @@ public class SighEditHandler {
 
     public static void init() {
         LOCK.lock();
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW, SighEditHandler::onBlockInteract);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, SighEditHandler::onBlockInteract);
     }
 
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {

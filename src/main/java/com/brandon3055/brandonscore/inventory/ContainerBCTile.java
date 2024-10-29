@@ -1,11 +1,9 @@
 package com.brandon3055.brandonscore.inventory;
 
-import codechicken.lib.data.MCDataInput;
 import codechicken.lib.inventory.container.modular.ModularGuiContainerMenu;
 import codechicken.lib.packet.PacketCustom;
 import com.brandon3055.brandonscore.blocks.TileBCore;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -14,9 +12,7 @@ import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
 
@@ -125,20 +121,12 @@ public abstract class ContainerBCTile<T extends TileBCore> extends ModularGuiCon
         return null;
     }
 
-    /**
-     * @return the item handler for the tile entity.
-     */
-    @Deprecated
-    public LazyOptional<IItemHandler> getItemHandler() {
-        return tile.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-    }
-
     protected static <T extends BlockEntity> T getClientTile(Inventory playerInv, FriendlyByteBuf extraData) {
         return (T) playerInv.player.level().getBlockEntity(extraData.readBlockPos());
     }
 
     public PacketCustom createServerBoundPacket(int packetType) {
-        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL, packetType);
+        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, packetType);
         packet.writeInt(containerId);
         return packet;
     }

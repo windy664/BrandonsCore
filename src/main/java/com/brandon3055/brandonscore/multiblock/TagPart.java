@@ -1,11 +1,11 @@
 package com.brandon3055.brandonscore.multiblock;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,7 +34,7 @@ public class TagPart implements MultiBlockPart {
     @Override
     public Collection<Block> validBlocks() {
         if (blockCache == null) {
-            blockCache = ForgeRegistries.BLOCKS.getValues()
+            blockCache = BuiltInRegistries.BLOCK
                     .stream()
                     .filter(block -> block.defaultBlockState().is(tag))
                     .collect(Collectors.toList());

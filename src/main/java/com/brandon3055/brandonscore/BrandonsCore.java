@@ -1,6 +1,5 @@
 package com.brandon3055.brandonscore;
 
-import com.brandon3055.brandonscore.capability.CapabilityOP;
 import com.brandon3055.brandonscore.client.ClientProxy;
 import com.brandon3055.brandonscore.command.BCCommands;
 import com.brandon3055.brandonscore.handlers.BCEventHandler;
@@ -15,18 +14,20 @@ import com.brandon3055.brandonscore.lib.IEquipmentManager;
 import com.brandon3055.brandonscore.multiblock.MultiBlockManager;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
 import com.brandon3055.brandonscore.worldentity.WorldEntityHandler;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.DistExecutor;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import static java.util.Objects.requireNonNull;
 
-@Mod(BrandonsCore.MODID)
+@Mod (BrandonsCore.MODID)
 public class BrandonsCore {
     public static final Logger LOGGER = LogManager.getLogger("BrandonsCore");
     public static final String MODNAME = "Brandon's Core";
@@ -35,8 +36,10 @@ public class BrandonsCore {
     public static CommonProxy proxy;
     public static boolean inDev = false;
     public static IEquipmentManager equipmentManager = null;
+    private static @Nullable ModContainer container;
 
-    public BrandonsCore() {
+    public BrandonsCore(ModContainer container, IEventBus modBus) {
+        BrandonsCore.container = container;
         FileHandler.init();
         ModHelperBC.init();
         proxy = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
@@ -58,19 +61,23 @@ public class BrandonsCore {
             LOGGER.info("Oh well.. At least we dont have to worry about getting blown up now...");
         }
 
-        CapabilityOP.init();
         BCoreNetwork.init();
         BCConfig.load();
         ProcessHandler.init();
         MultiBlockManager.init();
         BlockToStackHelper.init();
-        WorldEntityHandler.init();
+        WorldEntityHandler.init(modBus);
         ContributorHandler.init();
         BCEventHandler.init();
         BCCommands.init();
         SighEditHandler.init();
+        BCContent.init(modBus);
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientInit::init);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientInit.init(modBus));
+    }
+
+    public static ModContainer container() {
+        return requireNonNull(container);
     }
 }
 

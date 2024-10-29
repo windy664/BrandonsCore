@@ -1,8 +1,7 @@
 package com.brandon3055.brandonscore.capability;
 
-import codechicken.lib.math.MathHelper;
 import com.brandon3055.brandonscore.api.power.IOPStorage;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 /**
  * Created by brandon3055 on 16/9/19.

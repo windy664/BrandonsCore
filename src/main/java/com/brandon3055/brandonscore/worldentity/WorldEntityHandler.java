@@ -8,15 +8,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.RegistryBuilder;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -31,29 +30,26 @@ public class WorldEntityHandler {
     private static final CrashLock LOCK = new CrashLock("Already Initialized.");
 
     public static final ResourceKey<Registry<WorldEntityType<?>>> ENTITY_TYPE = ResourceKey.createRegistryKey(new ResourceLocation(MODID, "world_entity"));
-    public static IForgeRegistry<WorldEntityType<?>> REGISTRY;
+    public static Registry<WorldEntityType<?>> REGISTRY;
     private static final Map<UUID, WorldEntity> ID_ENTITY_MAP = new HashMap<>();
     private static final Map<ResourceKey<Level>, List<WorldEntity>> WORLD_ENTITY_MAP = new HashMap<>();
     private static final Map<ResourceKey<Level>, List<ITickableWorldEntity>> TICKING_ENTITY_MAP = new HashMap<>();
     private static final Map<ResourceKey<Level>, List<WorldEntity>> ADDED_WORLD_ENTITIES = new HashMap<>();
 
     public static void createRegistry(NewRegistryEvent event) {
-        event.create(new RegistryBuilder<WorldEntityType<?>>()
-                        .setName(ENTITY_TYPE.location())
-                        .disableSaving()
-                        .disableSync(),
-                ts -> REGISTRY = ts);
+        REGISTRY = event.create(new RegistryBuilder<>(ENTITY_TYPE)
+                .sync(false)
+        );
     }
 
-    public static void init() {
+    public static void init(IEventBus modBus) {
         LOCK.lock();
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(WorldEntityHandler::createRegistry);
 
-        MinecraftForge.EVENT_BUS.addListener(WorldEntityHandler::worldLoad);
-        MinecraftForge.EVENT_BUS.addListener(WorldEntityHandler::worldUnload);
-        MinecraftForge.EVENT_BUS.addListener(WorldEntityHandler::onServerStop);
-        MinecraftForge.EVENT_BUS.addListener(WorldEntityHandler::worldTick);
+        NeoForge.EVENT_BUS.addListener(WorldEntityHandler::worldLoad);
+        NeoForge.EVENT_BUS.addListener(WorldEntityHandler::worldUnload);
+        NeoForge.EVENT_BUS.addListener(WorldEntityHandler::onServerStop);
+        NeoForge.EVENT_BUS.addListener(WorldEntityHandler::worldTick);
     }
 
     public static void worldLoad(LevelEvent.Load event) {
@@ -70,7 +66,7 @@ public class WorldEntityHandler {
             WORLD_ENTITY_MAP.remove(key);
         }
 
-        WorldEntitySaveData data = world.getDataStorage().computeIfAbsent(WorldEntitySaveData::load,WorldEntitySaveData::new, WorldEntitySaveData.FILE_ID);
+        WorldEntitySaveData data = world.getDataStorage().computeIfAbsent(new SavedData.Factory<>(WorldEntitySaveData::new, WorldEntitySaveData::load), WorldEntitySaveData.FILE_ID);
         data.setSaveCallback(() -> handleSave(data, key));
         for (WorldEntity entity : data.getEntities()) {
             addWorldEntity(world, entity);

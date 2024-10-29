@@ -80,7 +80,7 @@ public abstract class WorldEntity {
     @Nullable
     public static WorldEntity readWorldEntity(CompoundTag nbt) {
         String id = nbt.getString("id");
-        return Optional.ofNullable(WorldEntityHandler.REGISTRY.getValue(new ResourceLocation(id)))
+        return Optional.ofNullable(WorldEntityHandler.REGISTRY.get(new ResourceLocation(id)))
                 .map(e -> {
                     try {
                         return e.create();

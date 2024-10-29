@@ -16,7 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.ForgeHooksClient;
+import net.neoforged.neoforge.client.ClientHooks;
 
 import javax.annotation.Nullable;
 
@@ -49,7 +49,7 @@ public class EquippedItemModelLayer<T extends LivingEntity, M extends HumanoidMo
         if (livingEntity instanceof Player player) {
             ContributorProperties props = ContributorHandler.getProps(player);
             if (props.isContributor()) {
-                ForgeHooksClient.copyModelProperties(getParentModel(), contributorModel);
+                ClientHooks.copyModelProperties(getParentModel(), contributorModel);
                 contributorModel.props = props;
                 contributorModel.render(livingEntity, mStack, getter, ItemStack.EMPTY, packedLightIn, OverlayTexture.NO_OVERLAY, partialTicks);
             }

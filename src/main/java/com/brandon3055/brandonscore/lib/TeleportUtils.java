@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeHooks;
+import net.neoforged.neoforge.common.CommonHooks;
 
 import java.util.LinkedList;
 
@@ -21,6 +21,7 @@ import java.util.LinkedList;
  * Also has support for teleporting mounts.
  */
 //TODO Dig through the vanilla teleport code again and re write this.
+@Deprecated //Can probably remove or super simplify this with the new vanilla teleport stuff.
 public class TeleportUtils {
 
     public static Entity teleportEntity(Entity entity, Entity destination) {
@@ -87,7 +88,7 @@ public class TeleportUtils {
 
         boolean interDimensional = sourceDim != targetDim;
 
-        if (interDimensional && !ForgeHooks.onTravelToDimension(entity, sourceDim)) {
+        if (interDimensional && !CommonHooks.onTravelToDimension(entity, sourceDim)) {
             return entity;
         }
 
@@ -144,7 +145,6 @@ public class TeleportUtils {
      * This is the black magic responsible for teleporting players between dimensions!
      */
     private static Player teleportPlayerInterdimentional(ServerPlayer player, MinecraftServer server, ResourceKey<Level> targetDim, double xCoord, double yCoord, double zCoord, float yaw, float pitch) {
-        ServerLevel originWorld = player.serverLevel();
         ServerLevel targetWorld = server.getLevel(targetDim);
         if (!player.isAlive() || targetWorld == null) {
             return player;

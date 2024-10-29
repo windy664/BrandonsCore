@@ -1,7 +1,7 @@
 package com.brandon3055.brandonscore;
 
 import codechicken.lib.config.*;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.nio.file.Paths;

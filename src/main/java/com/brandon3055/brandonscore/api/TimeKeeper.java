@@ -1,9 +1,9 @@
 package com.brandon3055.brandonscore.api;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.util.thread.EffectiveSide;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 
 /**
  * Created by brandon3055 on 12/10/19.
@@ -14,7 +14,7 @@ public class TimeKeeper {
     private static int clientTick = 0;
 
     static {
-        MinecraftForge.EVENT_BUS.register(new TimeKeeper());
+        NeoForge.EVENT_BUS.register(new TimeKeeper());
     }
 
     @SubscribeEvent

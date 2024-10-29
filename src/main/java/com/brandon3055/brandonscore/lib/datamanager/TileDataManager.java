@@ -6,7 +6,6 @@ import com.brandon3055.brandonscore.BrandonsCore;
 import com.brandon3055.brandonscore.api.TimeKeeper;
 import com.brandon3055.brandonscore.blocks.BlockBCore;
 import com.brandon3055.brandonscore.inventory.ContainerBCTile;
-import com.brandon3055.brandonscore.inventory.ContainerBCore;
 import com.brandon3055.brandonscore.lib.DelayedTask;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
 import com.brandon3055.brandonscore.utils.DataUtils;
@@ -144,7 +143,7 @@ public class TileDataManager<T extends BlockEntity & IDataManagerProvider> imple
 
     @Override
     public PacketCustom createSyncPacket() {
-        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL, BCoreNetwork.C_TILE_DATA_MANAGER);
+        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_DATA_MANAGER);
         packet.writePos(tile.getBlockPos());
         return packet;
     }

@@ -13,7 +13,6 @@ import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.MessageSignature;
@@ -22,7 +21,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.NotImplementedException;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -30,7 +29,7 @@ import java.util.UUID;
 public class ClientPacketHandler implements ICustomPacketHandler.IClientPacketHandler {
 
     @Override
-    public void handlePacket(PacketCustom packet, Minecraft mc, ClientPacketListener handler) {
+    public void handlePacket(PacketCustom packet, Minecraft mc) {
         switch (packet.getType()) {
             case BCoreNetwork.C_TILE_DATA_MANAGER -> {
                 BlockPos pos = packet.readPos();
@@ -115,7 +114,7 @@ public class ClientPacketHandler implements ICustomPacketHandler.IClientPacketHa
         entity.setYBodyRot((headYaw * 360) / 256.0F);
         entity.setId(entityID);
         entity.setUUID(uuid);
-        mc.level.putNonPlayerEntity(entityID, entity);
+        mc.level.addEntity(entity);
         entity.lerpMotion(velocity.x, velocity.y, velocity.z);
     }
 
@@ -141,7 +140,7 @@ public class ClientPacketHandler implements ICustomPacketHandler.IClientPacketHa
             return;
         }
         ParticleType<?> type = packet.readRegistryId();
-        ParticleOptions data = type.getDeserializer().fromNetwork(SneakyUtils.unsafeCast(type), packet.toPacketBuffer());
+        ParticleOptions data = type.getDeserializer().fromNetwork(SneakyUtils.unsafeCast(type), packet.toFriendlyByteBuf());
         Vector3 pos = packet.readVector();
         Vector3 motion = packet.readVector();
         boolean distanceOverride = packet.readBoolean();

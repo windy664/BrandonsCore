@@ -3,7 +3,7 @@ package com.brandon3055.brandonscore.blocks;
 import com.brandon3055.brandonscore.lib.IMCDataSerializable;
 import com.brandon3055.brandonscore.lib.IValueHashable;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
 /**
  * Created by brandon3055 on 18/12/19.

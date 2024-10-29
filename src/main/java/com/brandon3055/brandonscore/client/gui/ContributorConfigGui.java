@@ -243,9 +243,9 @@ public class ContributorConfigGui implements GuiProvider {
         }
     }
 
-    public void mouseScrolled(double mouseX, double mouseY, double scrollAmount) {
+    public void mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         double size = playerRender.xSize();
-        size = (int) MathHelper.clip(size + (scrollAmount * Math.max(size / 10, 1)), 10, 500);
+        size = (int) MathHelper.clip(size + (scrollY * Math.max(size / 10, 1)), 10, 500);
         playerRender.setSize(size, size);
     }
 

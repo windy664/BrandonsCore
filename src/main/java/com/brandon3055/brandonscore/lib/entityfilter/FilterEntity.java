@@ -2,10 +2,10 @@ package com.brandon3055.brandonscore.lib.entityfilter;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Created by brandon3055 on 7/11/19.
@@ -43,7 +43,7 @@ public class FilterEntity extends FilterBase {
 
     @Override
     public boolean test(Entity entity) {
-        ResourceLocation res = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
+        ResourceLocation res = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         if (entityName.isEmpty() || res == null) {
             return !whitelistEntity;
         }

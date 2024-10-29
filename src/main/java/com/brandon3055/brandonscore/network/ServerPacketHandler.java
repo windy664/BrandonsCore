@@ -3,7 +3,6 @@ package com.brandon3055.brandonscore.network;
 import codechicken.lib.packet.ICustomPacketHandler;
 import codechicken.lib.packet.PacketCustom;
 import com.brandon3055.brandonscore.BCConfig;
-import com.brandon3055.brandonscore.blocks.TileBCore;
 import com.brandon3055.brandonscore.handlers.contributor.ContributorHandler;
 import com.brandon3055.brandonscore.inventory.ContainerBCTile;
 import com.brandon3055.brandonscore.utils.LogHelperBC;
@@ -14,26 +13,25 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 public class ServerPacketHandler implements ICustomPacketHandler.IServerPacketHandler {
 
     @Override
-    public void handlePacket(PacketCustom packet, ServerPlayer sender, ServerGamePacketListenerImpl handler) {
+    public void handlePacket(PacketCustom packet, ServerPlayer sender) {
         switch (packet.getType()) {
-            case BCoreNetwork.S_CONTAINER_MESSAGE -> handleContainerMessage(packet, sender, handler);
-            case BCoreNetwork.S_TILE_DATA_MANAGER -> handleTileDataManager(packet, sender, handler);
+            case BCoreNetwork.S_CONTAINER_MESSAGE -> handleContainerMessage(packet, sender);
+            case BCoreNetwork.S_TILE_DATA_MANAGER -> handleTileDataManager(packet, sender);
             case BCoreNetwork.S_CONTRIBUTOR_CONFIG -> ContributorHandler.handleSettingsFromClient(sender, packet);
             case BCoreNetwork.S_CONTRIBUTOR_LINK -> ContributorHandler.handleClientLink(sender);
         }
     }
 
-    private void handleContainerMessage(PacketCustom packet, ServerPlayer sender, ServerGamePacketListenerImpl handler) {
+    private void handleContainerMessage(PacketCustom packet, ServerPlayer sender) {
         try {
             if (sender.containerMenu instanceof ContainerBCTile) {
                 ((ContainerBCTile<?>) sender.containerMenu).handleContainerMessage(packet, sender);
@@ -44,7 +42,7 @@ public class ServerPacketHandler implements ICustomPacketHandler.IServerPacketHa
         }
     }
 
-    private void handleTileDataManager(PacketCustom packet, ServerPlayer sender, ServerGamePacketListener handler) {
+    private void handleTileDataManager(PacketCustom packet, ServerPlayer sender) {
         try {
             if (sender.containerMenu instanceof ContainerBCTile<?>) {
                 ((ContainerBCTile<?>) sender.containerMenu).handleTileDataPacket(packet, sender);
@@ -61,7 +59,7 @@ public class ServerPacketHandler implements ICustomPacketHandler.IServerPacketHa
         if (!BCConfig.clientPermissionVerification) return true;
         BlockHitResult traceResult = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
         PlayerInteractEvent.RightClickBlock event = new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, traceResult);
-        MinecraftForge.EVENT_BUS.post(event);
+        NeoForge.EVENT_BUS.post(event);
         return event.getResult() != Event.Result.DENY;
     }
 }

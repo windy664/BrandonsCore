@@ -1,8 +1,10 @@
 package com.brandon3055.brandonscore.client.render;
 
 import codechicken.lib.gui.modular.lib.GuiRender;
+import codechicken.lib.gui.modular.sprite.Material;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.buffer.TransformingVertexConsumer;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -12,6 +14,12 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
+import net.minecraft.client.resources.metadata.animation.FrameSize;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceMetadata;
 
 /**
  * Created by brandon3055 on 16/10/18.
@@ -61,6 +69,28 @@ public class RenderUtils {
             double vertX = x + radius + Math.sin(angle) * radius;
             double vertY = y + radius + Math.cos(angle) * radius;
             builder.vertex(vertX, vertY, 0).color(outerColour).endVertex();
+        }
+    }
+
+    public static Material fromRawTexture(ResourceLocation texture) {
+        return new Material(texture, texture, FullSprite::new);
+    }
+
+    private static class FullSprite extends TextureAtlasSprite {
+        private FullSprite(ResourceLocation location) {
+            super(location, new SpriteContents(location, new FrameSize(1, 1), new NativeImage(1, 1, false), ResourceMetadata.EMPTY), 1, 1, 0, 0);
+        }
+
+        @Override
+        public float getU(float u)
+        {
+            return u / 16;
+        }
+
+        @Override
+        public float getV(float v)
+        {
+            return v / 16;
         }
     }
 }
