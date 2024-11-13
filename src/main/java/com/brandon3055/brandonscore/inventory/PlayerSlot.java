@@ -108,14 +108,14 @@ public class PlayerSlot {
             }
             player.getInventory().offhand.set(slot, stack);
         } else if (category == EnumInvCategory.EQUIPMENT && equipmentManager != null) {
-            IItemHandlerModifiable handler = equipmentManager.getInventory(player);
-            if (handler != null) {
+            Optional<IItemHandlerModifiable> opHandler = equipmentManager.getInventory(player);
+            opHandler.ifPresent(handler -> {
                 if (slot < 0 || slot >= handler.getSlots()) {
                     LogHelperBC.error("PlayerSlot: Could not insert into the specified slot because the specified slot does not exist! Slot: " + slot + ", Inventory: " + category + ", Stack: " + stack);
                     return;
                 }
                 handler.setStackInSlot(slot, stack);
-            }
+            });
         }
     }
 
@@ -139,7 +139,7 @@ public class PlayerSlot {
             }
         }
         if (equipmentManager != null) {
-            IItemHandlerModifiable handler = equipmentManager.getInventory(inv.player);
+            IItemHandlerModifiable handler = equipmentManager.getInventory(inv.player).orElse(null);
             if (handler != null) {
                 for (int i = 0; i < handler.getSlots(); i++) {
                     ItemStack stack = handler.getStackInSlot(i);
@@ -175,7 +175,7 @@ public class PlayerSlot {
             }
         }
         if (equipmentManager != null) {
-            IItemHandlerModifiable handler = equipmentManager.getInventory(inv.player);
+            IItemHandlerModifiable handler = equipmentManager.getInventory(inv.player).orElse(null);
             if (handler != null) {
                 for (int i = 0; i < handler.getSlots(); i++) {
                     ItemStack stack = handler.getStackInSlot(i);
@@ -215,7 +215,7 @@ public class PlayerSlot {
         } else if (category == EnumInvCategory.OFF_HAND) {
             return player.getInventory().offhand.get(slot);
         } else if (category == EnumInvCategory.EQUIPMENT && equipmentManager != null) {
-            IItemHandlerModifiable handler = equipmentManager.getInventory(player);
+            IItemHandlerModifiable handler = equipmentManager.getInventory(player).orElse(null);
             if (handler != null) {
                 return handler.getSlots() > slot ? handler.getStackInSlot(slot) : ItemStack.EMPTY;
             }

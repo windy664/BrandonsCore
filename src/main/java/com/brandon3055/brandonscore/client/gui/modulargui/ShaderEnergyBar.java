@@ -48,7 +48,7 @@ public class ShaderEnergyBar extends GuiEnergyBar {
     private static final RenderType SHADER_TYPE = RenderType.create("starfield", DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS, 256, false, false,
             RenderType.CompositeState.builder()
                     .setShaderState(new RenderStateShard.ShaderStateShard(() -> BCShaders.energyBarShader))
-                    .setTextureState(new RenderStateShard.TextureStateShard(BCGuiTextures.getAtlasHolder().atlasLocation(), false, false))
+                    .setTextureState(new RenderStateShard.TextureStateShard(BCGuiTextures.TEXTURES.getAtlasHolder().atlasLocation(), false, false))
                     .createCompositeState(false)
     );
 

@@ -4,6 +4,7 @@ import com.brandon3055.brandonscore.BrandonsCore;
 import com.brandon3055.brandonscore.api.power.IOPStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.EntityCapability;
 import net.neoforged.neoforge.capabilities.ItemCapability;
@@ -22,4 +23,14 @@ public class CapabilityOP {
     public static final ItemCapability<IOPStorage, Void> ITEM = ItemCapability.createVoid(new ResourceLocation(BrandonsCore.MODID, "op"), IOPStorage.class);
 
     private CapabilityOP() {}
+
+    @Nullable
+    public static IOPStorage fromBlockEntity(BlockEntity blockEntity, @Nullable Direction direction) {
+        return BLOCK.getCapability(blockEntity.getLevel(), blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, direction);
+    }
+
+    @Nullable
+    public static IOPStorage fromBlockEntity(BlockEntity blockEntity) {
+        return fromBlockEntity(blockEntity, null);
+    }
 }

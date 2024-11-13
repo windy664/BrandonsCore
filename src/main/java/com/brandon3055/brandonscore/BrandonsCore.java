@@ -7,7 +7,7 @@ import com.brandon3055.brandonscore.handlers.FileHandler;
 import com.brandon3055.brandonscore.handlers.ProcessHandler;
 import com.brandon3055.brandonscore.handlers.SighEditHandler;
 import com.brandon3055.brandonscore.handlers.contributor.ContributorHandler;
-import com.brandon3055.brandonscore.init.ClientInit;
+import com.brandon3055.brandonscore.init.BCClient;
 import com.brandon3055.brandonscore.integration.ModHelperBC;
 import com.brandon3055.brandonscore.inventory.BlockToStackHelper;
 import com.brandon3055.brandonscore.lib.IEquipmentManager;
@@ -61,7 +61,7 @@ public class BrandonsCore {
             LOGGER.info("Oh well.. At least we dont have to worry about getting blown up now...");
         }
 
-        BCoreNetwork.init();
+        BCoreNetwork.init(modBus);
         BCConfig.load();
         ProcessHandler.init();
         MultiBlockManager.init();
@@ -72,8 +72,7 @@ public class BrandonsCore {
         BCCommands.init();
         SighEditHandler.init();
         BCContent.init(modBus);
-
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientInit.init(modBus));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BCClient.init(modBus));
     }
 
     public static ModContainer container() {

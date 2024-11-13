@@ -2,6 +2,8 @@ package com.brandon3055.brandonscore.api;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.Tier;
 
@@ -21,31 +23,33 @@ import static net.minecraft.world.item.Rarity.*;
  * Tier 2: Draconic Core
  * Tier 3: Chaotic Core
  */
-public enum TechLevel {
+public enum TechLevel implements StringRepresentable {
     //@formatter:off
     /**
      * Basic / Draconium level.
      */
-    DRACONIUM   (0, WHITE,       COMMON,   3),
+    DRACONIUM   (0, "draconium",    WHITE,       COMMON,   3),
     /**
      * Wyvern can be thought of as "Nether Star tier"
      * Though that does not necessarily mean all wyvern tier items
      * require nether stars. Take wyvern energy crystals for example.
      */
-    WYVERN      (1, BLUE,        UNCOMMON, 32),
+    WYVERN      (1, "wyvern",       BLUE,        UNCOMMON, 32),
     /**
      * AKA Awakened. Pretty self explanatory. Draconic is the tier above wyvern and in most cases
      * draconic tier items should require awakened draconium to craft.
      */
-    DRACONIC    (2, GOLD,        RARE,     128),
+    DRACONIC    (2, "draconic",     GOLD,        RARE,     128),
     /**
      * Chaotic is the ultimate end game tier.
      * Obviously all chaotic tier items require chaos shards or fragments to craft.
      */
-    CHAOTIC     (3, DARK_PURPLE, EPIC,     512);
+    CHAOTIC     (3, "chaotic",      DARK_PURPLE, EPIC,     512);
     //@formatter:on
 
+    public static final StringRepresentable.EnumCodec<TechLevel> CODEC = StringRepresentable.fromEnum(TechLevel::values);
     public final int index;
+    private final String name;
     private final ChatFormatting textColour;
     private Rarity rarity;
     private final int harvestLevel;
@@ -62,8 +66,9 @@ public enum TechLevel {
         }
     }
 
-    TechLevel(int index, ChatFormatting colour, Rarity rarity, int harvestLevel) {
+    TechLevel(int index, String name, ChatFormatting colour, Rarity rarity, int harvestLevel) {
         this.index = index;
+        this.name = name;
         this.textColour = colour;
         this.rarity = rarity;
         this.harvestLevel = harvestLevel;
@@ -88,5 +93,10 @@ public enum TechLevel {
 
     public static TechLevel byIndex(int index) {
         return index >= 0 && index < VALUES.length ? VALUES[index] : DRACONIUM;
+    }
+
+    @Override
+    public String getSerializedName() {
+        return name;
     }
 }

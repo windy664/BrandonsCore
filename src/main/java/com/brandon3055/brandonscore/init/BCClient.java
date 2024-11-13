@@ -1,5 +1,7 @@
 package com.brandon3055.brandonscore.init;
 
+import codechicken.lib.gui.modular.sprite.GuiTextures;
+import com.brandon3055.brandonscore.BrandonsCore;
 import com.brandon3055.brandonscore.client.*;
 import com.brandon3055.brandonscore.client.hud.HudManager;
 import com.brandon3055.brandonscore.client.model.EquippedItemModelLayer;
@@ -22,15 +24,14 @@ import net.neoforged.neoforge.common.NeoForge;
 /**
  * Created by brandon3055 on 15/11/2022
  */
-public class ClientInit {
+public class BCClient {
     private static final CrashLock LOCK = new CrashLock("Already Initialized.");
 
     public static void init(IEventBus modBus) {
         LOCK.lock();
 
-        modBus.addListener(BCGuiTextures::onResourceReload);
-        modBus.addListener(ClientInit::clientSetupEvent);
-        modBus.addListener(ClientInit::onAddRenderLayers);
+        modBus.addListener(BCClient::clientSetupEvent);
+        modBus.addListener(BCClient::onAddRenderLayers);
 
         NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingIn event) -> ContributorHandler.onClientLogin(event.getPlayer()));
         ProcessHandlerClient.init();
@@ -38,6 +39,7 @@ public class ClientInit {
         BCShaders.init(modBus);
         BCProfiler.init();
         DLRSCache.init();
+        BCGuiTextures.init(modBus);
     }
 
     private static void clientSetupEvent(FMLClientSetupEvent event) {

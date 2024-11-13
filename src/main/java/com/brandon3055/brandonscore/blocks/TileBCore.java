@@ -115,10 +115,10 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
         if (level != null && !level.isClientSide) {
             if (containerListeners) {
                 dataManager.detectAndSendChangesToListeners(getAccessingPlayers());
-//                capManager.detectAndSendChangesToListeners(getAccessingPlayers());
+                capManager.detectAndSendChangesToListeners(getAccessingPlayers());
             } else {
                 dataManager.detectAndSendChanges();
-//                capManager.detectAndSendChanges();
+                capManager.detectAndSendChanges();
             }
         }
     }
@@ -289,10 +289,10 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     public void writeToItemStack(CompoundTag nbt, boolean willHarvest) {
         dataManager.writeToStackNBT(nbt);
         savedItemDataObjects.forEach((tagName, serializable) -> nbt.put(tagName, serializable.serializeNBT()));
-//        CompoundTag capTags = capManager.serialize(true);
-//        if (!capTags.isEmpty()) {
-//            nbt.put("bc_caps", capTags);
-//        }
+        CompoundTag capTags = capManager.serialize(true);
+        if (!capTags.isEmpty()) {
+            nbt.put("bc_caps", capTags);
+        }
         writeExtraTileAndStack(nbt);
     }
 
@@ -301,9 +301,9 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     public void readFromItemStack(CompoundTag nbt) {
         dataManager.readFromStackNBT(nbt);
         savedItemDataObjects.forEach((tagName, serializable) -> serializable.deserializeNBT(nbt.getCompound(tagName)));
-//        if (nbt.contains("bc_caps")) {
-//            capManager.deserialize(nbt.getCompound("bc_caps"));
-//        }
+        if (nbt.contains("bc_caps")) {
+            capManager.deserialize(nbt.getCompound("bc_caps"));
+        }
         readExtraTileAndStack(nbt);
     }
 
@@ -314,10 +314,10 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
      * For that you need to override read and writeToStack just be sure to pay attention to the doc for those.
      */
     public void writeExtraNBT(CompoundTag nbt) {
-//        CompoundTag capTags = capManager.serialize(false);
-//        if (!capTags.isEmpty()) {
-//            nbt.put("bc_caps", capTags);
-//        }
+        CompoundTag capTags = capManager.serialize(false);
+        if (!capTags.isEmpty()) {
+            nbt.put("bc_caps", capTags);
+        }
 
         if (!customName.isEmpty()) {
             nbt.putString("custom_name", customName);
@@ -328,9 +328,9 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     }
 
     public void readExtraNBT(CompoundTag nbt) {
-//        if (nbt.contains("bc_caps")) {
-//            capManager.deserialize(nbt.getCompound("bc_caps"));
-//        }
+        if (nbt.contains("bc_caps")) {
+            capManager.deserialize(nbt.getCompound("bc_caps"));
+        }
 
         if (nbt.contains("custom_name", 8)) {
             customName = nbt.getString("custom_name");
@@ -391,18 +391,6 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     }
 
     //endregion
-
-//    @Nonnull
-//    @Override
-//    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-//        LazyOptional<T> ret = capManager.getCapability(capability, side);
-//        return ret.isPresent() ? ret : super.getCapability(capability, side);
-//    }
-
-    @Override
-    public void invalidateCapabilities() {
-//        capManager.invalidate();
-    }
 
     //region EnergyHelpers
 

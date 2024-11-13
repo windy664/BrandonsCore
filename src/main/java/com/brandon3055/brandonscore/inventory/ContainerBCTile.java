@@ -12,6 +12,7 @@ import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
@@ -27,6 +28,7 @@ public abstract class ContainerBCTile<T extends TileBCore> extends ModularGuiCon
      */
     public T tile;
     public Player player;
+    private boolean initComplete = false;
 
     public ContainerBCTile(@Nullable MenuType<?> type, int windowId, Inventory playerInv, FriendlyByteBuf extraData) {
         super(type, windowId, playerInv);
@@ -41,6 +43,7 @@ public abstract class ContainerBCTile<T extends TileBCore> extends ModularGuiCon
         this.tile.onPlayerOpenContainer(playerInv.player);
     }
 
+
     @Override
     public void removed(Player player) {
         super.removed(player);
@@ -50,14 +53,16 @@ public abstract class ContainerBCTile<T extends TileBCore> extends ModularGuiCon
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        tile.detectAndSendChanges(true);
+        if (initComplete){
+            tile.detectAndSendChanges(true);
+        }
     }
 
-    @Override
-    public void addSlotListener(ContainerListener listener) {
-        super.addSlotListener(listener);
-        if (listener instanceof ServerPlayer) {
-            tile.getDataManager().forcePlayerSync((ServerPlayer) listener);
+    //Cant do this in addSlotListener anymore because player.containerMenu is now set after addSlotListener
+    public void onOpened(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            tile.getDataManager().forcePlayerSync(serverPlayer);
+            initComplete = true;
         }
     }
 

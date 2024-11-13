@@ -61,7 +61,6 @@ repositories {
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
-
 //     implementation fg.deobf("com.brandon3055.projectintelligence:ProjectIntelligence:${mc_version}-${pi_version}:universal")
     implementation "io.codechicken:CodeChickenLib:${mc_version}-${ccl_version}"
 
@@ -95,7 +94,7 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
                         'mcVersion'   : "${mc_version}",
                         'version'     : "${mod_version}",
                         'classifier'  : 'universal',
-                        'modLoader'   : ['neoforge', 'forge'],
+                        'modLoader'   : 'neoforge',
                         'curseforgeId': '231382',
                         'modrinthId'  : 'iFDWVIFV',
                         'dependencies': [
@@ -112,7 +111,6 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
 }
 
 jar {
-    finalizedBy 'reobfJar'
     finalizedBy 'signJar'
     archiveClassifier = 'universal'
     manifest {
@@ -130,7 +128,6 @@ jar {
 
 tasks.register("signJar") {
     dependsOn("jar")
-    dependsOn("reobfJar")
 
     doFirst {
         def args = [:]

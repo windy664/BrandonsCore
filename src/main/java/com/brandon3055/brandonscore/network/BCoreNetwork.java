@@ -27,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.IEventBus;
 
 import java.util.Map;
 
@@ -67,6 +68,11 @@ public class BCoreNetwork {
     public static final int S_CONTRIBUTOR_LINK = 5;
 
     public static final int S_DUMMY_PACKET = 99;
+
+    public static void init(IEventBus modBus) {
+        LOCK.lock();
+        CHANNEL.init(modBus);
+    }
 
     public static void sendNoClip(ServerPlayer player, boolean enabled) {
         PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_NO_CLIP);
@@ -214,9 +220,5 @@ public class BCoreNetwork {
                 packet.sendToPlayer(player);
             }
         }
-    }
-
-    public static void init() {
-        LOCK.lock();
     }
 }
