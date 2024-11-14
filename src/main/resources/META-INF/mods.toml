@@ -1,5 +1,6 @@
 modLoader="javafml"
-loaderVersion="[${lang_version},)"
+loaderVersion="[2,)"
+issueTrackerURL="https://github.com/Draconic-Inc/BrandonsCore"
 license="CoFH \"Don't Be a Jerk\" License"
 
 [[mods]]

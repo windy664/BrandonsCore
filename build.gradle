@@ -112,7 +112,7 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
 
 jar {
     finalizedBy 'signJar'
-    archiveClassifier = 'universal'
+    archiveClassifier = ''
     manifest {
         attributes 'Specification-Title': base.archivesName.get()
         attributes 'Specification-Vendor': 'brandon3055'
