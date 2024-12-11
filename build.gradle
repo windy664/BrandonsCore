@@ -93,7 +93,7 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
                         'displayName' : "Brandons Core ${version}",
                         'mcVersion'   : "${mc_version}",
                         'version'     : "${mod_version}",
-                        'classifier'  : 'universal',
+                        'classifier'  : null,
                         'modLoader'   : 'neoforge',
                         'curseforgeId': '231382',
                         'modrinthId'  : 'iFDWVIFV',
