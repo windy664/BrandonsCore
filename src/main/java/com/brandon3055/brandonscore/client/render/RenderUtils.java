@@ -34,18 +34,18 @@ public class RenderUtils {
                     .createCompositeState(false)
     );
 
-    /**
-     * * @return The buffer source used for GUI rendering. You must ALWAYS call endBatch on this when you are done with it.
-     */
-    @Deprecated
-    public static MultiBufferSource.BufferSource getGuiBuffers() {
-        return MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-    }
+//    /**
+//     * * @return The buffer source used for GUI rendering. You must ALWAYS call endBatch on this when you are done with it.
+//     */
+//    @Deprecated
+//    public static MultiBufferSource.BufferSource getGuiBuffers() {
+//        return MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+//    }
 
-    @Deprecated
-    public static MultiBufferSource.BufferSource getBuffers() {
-        return Minecraft.getInstance().renderBuffers().bufferSource();
-    }
+//    @Deprecated
+//    public static MultiBufferSource.BufferSource getBuffers() {
+//        return Minecraft.getInstance().renderBuffers().bufferSource();
+//    }
 
     @Deprecated
     public static void endBatch(MultiBufferSource getter) {
@@ -59,16 +59,16 @@ public class RenderUtils {
     }
 
     public static void drawPieProgress(GuiRender render, double x, double y, double diameter, double progress, double offsetAngle, int innerColour, int outerColour) {
-        double radius = diameter / 2;
+        float radius = (float) diameter / 2;
         VertexConsumer builder = new TransformingVertexConsumer(render.buffers().getBuffer(FAN_TYPE), render.pose());
-        builder.vertex(x + radius, y + radius, 0).color(innerColour).endVertex();
+        builder.addVertex((float) (x + radius), (float) (y + radius), 0).setColor(innerColour);
         for (double d = 0; d <= 1; d += 1D / 30D) {
-            double angle = (d * progress) + 0.5 - progress;
-            angle *= Math.PI * 2;
-            angle += MathHelper.torad * offsetAngle;
-            double vertX = x + radius + Math.sin(angle) * radius;
-            double vertY = y + radius + Math.cos(angle) * radius;
-            builder.vertex(vertX, vertY, 0).color(outerColour).endVertex();
+            float angle = (float) ((d * progress) + 0.5F - progress);
+            angle *= (float) Math.PI * 2;
+            angle += (float) MathHelper.torad * (float) offsetAngle;
+            float vertX = (float) (x + radius + Math.sin(angle) * radius);
+            float vertY = (float) (y + radius + Math.cos(angle) * radius);
+            builder.addVertex(vertX, vertY, 0).setColor(outerColour);
         }
     }
 

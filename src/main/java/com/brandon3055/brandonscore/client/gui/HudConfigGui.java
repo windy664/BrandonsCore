@@ -199,10 +199,10 @@ public class HudConfigGui implements GuiProvider {
             float endGreen   = (float)(endColor   >>  8 & 255) / 255.0F;
             float endBlue    = (float)(endColor         & 255) / 255.0F;
 
-            buffer.vertex(mat, (float) p4A, (float) p4B, 0).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
-            buffer.vertex(mat, (float) p3A, (float) p3B, 0).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
-            buffer.vertex(mat, (float) p2A, (float) p2B, 0).color(startRed, startGreen, startBlue, startAlpha).endVertex();
-            buffer.vertex(mat, (float) p1A, (float) p1B, 0).color(startRed, startGreen, startBlue, startAlpha).endVertex();
+            buffer.addVertex(mat, (float) p4A, (float) p4B, 0).setColor(  endRed,   endGreen,   endBlue,   endAlpha);
+            buffer.addVertex(mat, (float) p3A, (float) p3B, 0).setColor(  endRed,   endGreen,   endBlue,   endAlpha);
+            buffer.addVertex(mat, (float) p2A, (float) p2B, 0).setColor(startRed, startGreen, startBlue, startAlpha);
+            buffer.addVertex(mat, (float) p1A, (float) p1B, 0).setColor(startRed, startGreen, startBlue, startAlpha);
             //@formatter:on
         }
     }

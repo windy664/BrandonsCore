@@ -2,6 +2,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Objects;
@@ -84,12 +85,12 @@ public class ManagedDouble extends AbstractManagedData<Double> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
         compound.putDouble(name, value);
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         value = compound.getDouble(name);
         notifyListeners(value);
     }

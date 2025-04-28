@@ -2,6 +2,7 @@ package com.brandon3055.brandonscore.lib.entityfilter;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
@@ -58,16 +59,16 @@ public class FilterAdults extends FilterBase {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag compound = super.serializeNBT();
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag compound = super.serializeNBT(provider);
         compound.putBoolean("include", whitelistAdults);
         compound.putBoolean("tamable", includeNonAgeable);
         return compound;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        super.deserializeNBT(nbt);
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        super.deserializeNBT(provider, nbt);
         whitelistAdults = nbt.getBoolean("include");
         includeNonAgeable = nbt.getBoolean("tamable");
     }

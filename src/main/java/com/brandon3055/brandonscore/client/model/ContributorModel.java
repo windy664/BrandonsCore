@@ -62,17 +62,17 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
     private static final RenderType WEB_SHADER_TYPE = createWebType("web_shader", BCShaders.WINGS_WEB_SHADER);
 
     //Basic badge types
-    private static final RenderType LOLNET_TYPE = createBasicBadgeType(new ResourceLocation(MODID, "textures/contributor/badges/lolnet.png"), false);
-    private static final RenderType CR_TYPE = createBasicBadgeType(new ResourceLocation(MODID, "textures/contributor/badges/cr.png"), false);
-    private static final RenderType OG_TYPE = createBasicBadgeType(new ResourceLocation(MODID, "textures/contributor/badges/og_patreon.png"), false);
+    private static final RenderType LOLNET_TYPE = createBasicBadgeType(ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/lolnet.png"), false);
+    private static final RenderType CR_TYPE = createBasicBadgeType(ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/cr.png"), false);
+    private static final RenderType OG_TYPE = createBasicBadgeType(ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/og_patreon.png"), false);
 
     //Fancy badge types
-    private static final RenderType PATREON_LOGO_TYPE = createBadgeType("badge", BCShaders.BADGE_FOIL_SHADER, new ResourceLocation(MODID, "textures/contributor/badges/patreon_base.png"), true);
-    private static final RenderType PATREON_LOGO_OUTLINE_TYPE = createBadgeType("badge", BCShaders.BADGE_OUTLINE_SHADER, new ResourceLocation(MODID, "textures/contributor/badges/patreon_base.png"), true);
-    private static final RenderType PATREON_CORE_TYPE = createBadgeType("badge", BCShaders.BADGE_CORE_SHADER, new ResourceLocation(MODID, "textures/contributor/badges/patreon_core.png"), true);
+    private static final RenderType PATREON_LOGO_TYPE = createBadgeType("badge", BCShaders.BADGE_FOIL_SHADER, ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/patreon_base.png"), true);
+    private static final RenderType PATREON_LOGO_OUTLINE_TYPE = createBadgeType("badge", BCShaders.BADGE_OUTLINE_SHADER, ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/patreon_base.png"), true);
+    private static final RenderType PATREON_CORE_TYPE = createBadgeType("badge", BCShaders.BADGE_CORE_SHADER, ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/patreon_core.png"), true);
 
-    private static final RenderType BADGE_VET_TYPE = createBadgeType("vet", BCShaders.VET_BADGE_SHADER, new ResourceLocation(MODID, "textures/contributor/badges/veteran.png"), false);
-    private static final RenderType BADGE_VET_CORE_TYPE = createBadgeType("vet_over", BCShaders.VET_BADGE_SHADER, new ResourceLocation(MODID, "textures/contributor/badges/veteran_overlay.png"), false);
+    private static final RenderType BADGE_VET_TYPE = createBadgeType("vet", BCShaders.VET_BADGE_SHADER, ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/veteran.png"), false);
+    private static final RenderType BADGE_VET_CORE_TYPE = createBadgeType("vet_over", BCShaders.VET_BADGE_SHADER, ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/badges/veteran_overlay.png"), false);
 
     private final WingBoneRenderer humBone;
     private final WingBoneRenderer radBone;
@@ -85,7 +85,7 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
 
     public ContributorModel() {
         super(createMesh(new CubeDeformation(1), 0).getRoot().bake(64, 64));
-        Map<String, CCModel> model = new OBJParser(new ResourceLocation(MODID, "models/entity/contributor_wings.obj")).ignoreMtl().parse();
+        Map<String, CCModel> model = new OBJParser(ResourceLocation.fromNamespaceAndPath(MODID, "models/entity/contributor_wings.obj")).ignoreMtl().parse();
         CCModel hum = model.get("hum_bone").backfacedCopy();
         CCModel humShell = model.get("hum_bone_shell").backfacedCopy();
         CCModel rad = model.get("rad_bone").backfacedCopy();
@@ -108,9 +108,9 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
         f3Bone = new WingBoneRenderer(f3, new Vector3(-1.5, 31, 2.8), true);
         f3Bone.shell = new WingBoneRenderer(f3Shell, Vector3.ZERO, false);
 
-        chestpiece1 = BuiltInRegistries.ITEM.get(new ResourceLocation("draconicevolution:wyvern_chestpiece"));
-        chestpiece2 = BuiltInRegistries.ITEM.get(new ResourceLocation("draconicevolution:draconic_chestpiece"));
-        chestpiece3 = BuiltInRegistries.ITEM.get(new ResourceLocation("draconicevolution:chaotic_chestpiece"));
+        chestpiece1 = BuiltInRegistries.ITEM.get(ResourceLocation.parse("draconicevolution:wyvern_chestpiece"));
+        chestpiece2 = BuiltInRegistries.ITEM.get(ResourceLocation.parse("draconicevolution:draconic_chestpiece"));
+        chestpiece3 = BuiltInRegistries.ITEM.get(ResourceLocation.parse("draconicevolution:chaotic_chestpiece"));
     }
 
     @Override
@@ -197,12 +197,12 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
         shader.getModelMatUniform().glUniformMatrix4f(mat);
         VertexConsumer consumer = buffers.getBuffer(type);
         ccrs.bind(consumer, DefaultVertexFormat.NEW_ENTITY);
-        ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+//        ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
         addVertex(consumer, 0, 0, 0, 0, 0);
         addVertex(consumer, 0, 1, 0, 0, 1);
         addVertex(consumer, 1, 1, 0, 1, 1);
         addVertex(consumer, 1, 0, 0, 1, 0);
-        ccrs.draw();
+//        ccrs.draw();
         RenderUtils.endBatch(buffers);
     }
 
@@ -210,7 +210,7 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
         float p = 1 / 16F;
         float scale = onBack ? p * 6 : p * 3F;
         if (onBack) mat.rotate(180 * torad, Vector3.Y_NEG);
-        mat.translate(onBack ? 0 : p * 2, onBack ? p * 4 : p * 2, (p * (onArmor ? -3.1 : -2.275)) - zOffset);
+        mat.translate(onBack ? 0 : p * 2, onBack ? p * 4 : p * 2, (p * (onArmor ? -3.1 : -2.275)) - zOffset - 0.015); //< Add an additional offset to resolve z-fighting issue.
         if (hasChestpiece) {
             if (onBack && !onArmor) {
                 scale = p * 2.5F;
@@ -225,21 +225,21 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
         mat.translate(-0.5, -0.5, 0);
         VertexConsumer consumer = new TransformingVertexConsumer(buffers.getBuffer(type), mat);
         ccrs.bind(consumer, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
-        ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+//        ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
         addBasicVertex(consumer, 0, 0, 0, 0, 0);
         addBasicVertex(consumer, 0, 1, 0, 0, 1);
         addBasicVertex(consumer, 1, 1, 0, 1, 1);
         addBasicVertex(consumer, 1, 0, 0, 1, 0);
-        ccrs.draw();
+//        ccrs.draw();
         if (glint) {
-            consumer = new TransformingVertexConsumer(buffers.getBuffer(RenderType.armorGlint()), mat);
+            consumer = new TransformingVertexConsumer(buffers.getBuffer(RenderType.armorEntityGlint()), mat);
             ccrs.bind(consumer, DefaultVertexFormat.NEW_ENTITY);
-            ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+//            ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
             addVertex(consumer, 0, 0, 0, 0, 0);
             addVertex(consumer, 0, 1, 0, 0, p / 4);
             addVertex(consumer, 1, 1, 0, p / 4, p / 4);
             addVertex(consumer, 1, 0, 0, p / 4, 0);
-            ccrs.draw();
+//            ccrs.draw();
         }
         RenderUtils.endBatch(buffers);
     }
@@ -359,27 +359,27 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
 
         CCRenderState ccrs = CCRenderState.instance();
         ccrs.reset();
-        VertexConsumer consumer = buffers.getBuffer(renderType);
+        VertexConsumer consumer = buffers.getBuffer(renderType); //When retrieving buffer from MultiBufferSource, It has already started drawing.
         ccrs.bind(consumer, DefaultVertexFormat.NEW_ENTITY);
-        ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+//        ccrs.startDrawing(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
         addVertex(consumer, v1, 0, 1);
         addVertex(consumer, v0, 0.5F, 0);
         addVertex(consumer, v2, 1, 1);
         addVertex(consumer, v2, 1, 1);
-        ccrs.draw();
+//        ccrs.draw();
         RenderUtils.endBatch(buffers);
     }
 
     private void addVertex(VertexConsumer consumer, Vector3 vert, float u, float v) {
-        consumer.vertex(vert.x, vert.y, vert.z).color(0xFFFFFFFF).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(240).normal(0.5F, 0.5F, 0.5F).endVertex();
+        consumer.addVertex((float) vert.x, (float) vert.y, (float) vert.z).setColor(0xFFFFFFFF).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(240).setNormal(0.5F, 0.5F, 0.5F);
     }
 
     private void addVertex(VertexConsumer consumer, double x, double y, double z, float u, float v) {
-        consumer.vertex(x, y, z).color(0xFFFFFFFF).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(240).normal(0, 1, 0).endVertex();
+        consumer.addVertex((float) x, (float) y, (float) z).setColor(0xFFFFFFFF).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(240).setNormal(0, 1, 0);
     }
 
     private void addBasicVertex(VertexConsumer consumer, double x, double y, double z, float u, float v) {
-        consumer.vertex(x, y, z).color(0xFFFFFFFF).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(240).endVertex();
+        consumer.addVertex((float) x, (float) y, (float) z).setColor(0xFFFFFFFF).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(240);
     }
 
     private boolean isChestpiece(Item item) {
@@ -387,7 +387,7 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
     }
 
     //@formatter:off
-    @Override public void renderToBuffer(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, float r, float g, float b, float a) {}
+    @Override public void renderToBuffer(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int colour) {}
     @Override protected Iterable<ModelPart> headParts() { return ImmutableList.of(); }
     @Override protected Iterable<ModelPart> bodyParts() { return ImmutableList.of(); }
     //@formatter:on
@@ -436,7 +436,8 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
             if (zRot != 0) mat.apply(new Rotation(zRot * torad, Vector3.Z_POS).at(pivot));
             VBORenderType type = fancy ? chaos ? chaosType : fancyType : baseType;
             BCShader<?> shader = fancy ? chaos ? BCShaders.CHAOS_ENTITY_SHADER : BCShaders.WINGS_BONE_SHADER : BCShaders.CONTRIB_BASE_SHADER;
-            buffers.getBuffer(type.withCallback(() -> shader.getModelMatUniform().glUniformMatrix4f(mat)));
+//            buffers.getBuffer(type.withCallback(() -> shader.getModelMatUniform().glUniformMatrix4f(mat)));
+            type.withCallback(() -> shader.getModelMatUniform().glUniformMatrix4f(mat)).draw(buffers);
             RenderUtils.endBatch(buffers);
 
             if (shell != null && fancy) {
@@ -452,7 +453,7 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
     private static RenderType createBoneType(String name, ContribShader shader) {
         return RenderType.create(MODID + ":" + name, DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.TRIANGLES, 256, false, false, RenderType.CompositeState.builder()
                 .setShaderState(new RenderStateShard.ShaderStateShard(shader::getShaderInstance))
-                .setTextureState(new RenderStateShard.TextureStateShard(new ResourceLocation(MODID, "textures/contributor/contributor_wings_bones.png"), false, false))
+                .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/contributor_wings_bones.png"), false, false))
                 .setLightmapState(RenderStateShard.LIGHTMAP)
                 .setOverlayState(RenderStateShard.OVERLAY)
                 .createCompositeState(false)
@@ -462,7 +463,7 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
     private static RenderType createChaosType(String name, BCShader<?> shader) {
         return RenderType.create(MODID + ":" + name, DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.TRIANGLES, 256, RenderType.CompositeState.builder()
                 .setShaderState(new RenderStateShard.ShaderStateShard(shader::getShaderInstance))
-                .setTextureState(new RenderStateShard.TextureStateShard(new ResourceLocation(MODID, "textures/chaos_shader.png"), true, false))
+                .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(MODID, "textures/chaos_shader.png"), true, false))
                 .setLightmapState(RenderStateShard.LIGHTMAP)
                 .setOverlayState(RenderStateShard.OVERLAY)
                 .createCompositeState(false)
@@ -472,7 +473,7 @@ public class ContributorModel<T extends LivingEntity> extends HumanoidModel<T> i
     private static RenderType createWebType(String name, ContribShader shader) {
         return RenderType.create(MODID + ":" + name, DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
                 .setShaderState(new RenderStateShard.ShaderStateShard(shader::getShaderInstance))
-                .setTextureState(new RenderStateShard.TextureStateShard(new ResourceLocation(MODID, "textures/contributor/contributor_wings_web.png"), false, false))
+                .setTextureState(new RenderStateShard.TextureStateShard(ResourceLocation.fromNamespaceAndPath(MODID, "textures/contributor/contributor_wings_web.png"), false, false))
                 .setLightmapState(RenderStateShard.LIGHTMAP)
                 .setOverlayState(RenderStateShard.OVERLAY)
                 .setCullState(RenderStateShard.NO_CULL)

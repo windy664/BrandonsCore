@@ -2,6 +2,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
@@ -94,16 +95,16 @@ public class ManagedTextComponent extends AbstractManagedData<Component> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (value != null) {
-            compound.putString(name, Component.Serializer.toJson(value));
+            compound.putString(name, Component.Serializer.toJson(value, provider));
         }
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (compound.contains(name)) {
-            value = Component.Serializer.fromJson(compound.getString(name));
+            value = Component.Serializer.fromJson(compound.getString(name), provider);
         } else {
             value = null;
         }

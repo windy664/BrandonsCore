@@ -152,7 +152,7 @@ public class TargetPos {
 
     public void readFromNBT(CompoundTag nbt) {
         pos = Vector3.fromNBT(nbt);
-        dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(nbt.getString("dim")));
+        dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(nbt.getString("dim")));
         includeHeading = nbt.getBoolean("heading");
         if (includeHeading) {
             pitch = nbt.getFloat("pitch");

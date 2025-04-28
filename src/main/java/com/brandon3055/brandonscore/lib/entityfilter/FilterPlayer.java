@@ -3,6 +3,7 @@ package com.brandon3055.brandonscore.lib.entityfilter;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -88,8 +89,8 @@ public class FilterPlayer extends FilterBase {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag compound = super.serializeNBT();
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag compound = super.serializeNBT(provider);
         compound.putBoolean("include", whitelistPlayers);
         compound.putString("name", playerName);
         compound.putString("uuid", playerUUID);
@@ -97,8 +98,8 @@ public class FilterPlayer extends FilterBase {
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        super.deserializeNBT(nbt);
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        super.deserializeNBT(provider, nbt);
         whitelistPlayers = nbt.getBoolean("include");
         playerName = nbt.getString("name");
         playerUUID = nbt.getString("uuid");

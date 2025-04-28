@@ -6,9 +6,9 @@ import net.minecraft.resources.ResourceLocation;
  * Created by brandon3055 on 13/09/2016.
  *
  */
-public class DLResourceLocation extends ResourceLocation {
+public class DLResource {
 
-    private final String url;
+    public final ResourceLocation resource;
     public volatile int width = 0;
     public volatile int height = 0;
     public volatile boolean sizeSet = false;
@@ -16,9 +16,8 @@ public class DLResourceLocation extends ResourceLocation {
     public volatile boolean dlFinished = false;
     public boolean lastCheckStatus = false;
 
-    public DLResourceLocation(String resourceDomainIn, String url) {
-        super(resourceDomainIn, url);
-        this.url = url;
+    public DLResource(String resourceDomainIn, String url) {
+        this.resource = ResourceLocation.fromNamespaceAndPath(resourceDomainIn, url);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.brandon3055.brandonscore.handlers.contributor;
 
 import com.brandon3055.brandonscore.handlers.FileHandler;
+import com.brandon3055.brandonscore.utils.Utils;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.reflect.TypeToken;
@@ -17,9 +18,9 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.DistExecutor;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -75,14 +76,14 @@ public class ContributorFetcher {
 
     public void init() {
         LOCK.lock();                                              //I can do this because ClientTickEvent is server safe.
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> NeoForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> onTick(event)));
-        DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> NeoForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> onTick(event)));
+        Utils.unsafeRunWhenOn(Dist.CLIENT, () -> () -> NeoForge.EVENT_BUS.addListener((ClientTickEvent.Pre event) -> onTick()));
+        Utils.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> onTick()));
         downloadHashes();
     }
 
     private int tick;
 
-    private void onTick(TickEvent event) {
+    private void onTick() {
         if (!TASK_QUE.isEmpty()) {
             TASK_QUE.forEach(task -> FUTURE_TASKS.add(THREAD_POOL.submit(task)));
             TASK_QUE.clear();

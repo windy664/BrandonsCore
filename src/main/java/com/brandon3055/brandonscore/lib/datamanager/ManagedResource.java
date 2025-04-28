@@ -2,6 +2,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
@@ -94,16 +95,16 @@ public class ManagedResource extends AbstractManagedData<ResourceLocation> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (value != null) {
             compound.putString(name, value.toString());
         }
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (compound.contains(name)) {
-            value = new ResourceLocation(compound.getString(name));
+            value = ResourceLocation.parse(compound.getString(name));
         } else {
             value = null;
         }

@@ -27,7 +27,7 @@ public class InventoryUtils {
             ItemStack s = inventory.getItem(i);
 
             //TODO Do i still need to check damage?
-            if (ItemStack.isSameItemSameTags(stack, s) && stack.getDamageValue() == s.getDamageValue() && s.getCount() >= stack.getCount()) {
+            if (ItemStack.isSameItemSameComponents(stack, s) && stack.getDamageValue() == s.getDamageValue() && s.getCount() >= stack.getCount()) {
                 return true;
             }
         }
@@ -47,7 +47,7 @@ public class InventoryUtils {
             }
 
             //TODO Do i still need to check damage?
-            if (ItemStack.isSameItemSameTags(stack, s) && stack.getDamageValue() == s.getDamageValue() && s.getCount() >= stack.getCount()) {
+            if (ItemStack.isSameItemSameComponents(stack, s) && stack.getDamageValue() == s.getDamageValue() && s.getCount() >= stack.getCount()) {
                 s.shrink(stack.getCount());
                 inventory.setChanged();
                 return true;

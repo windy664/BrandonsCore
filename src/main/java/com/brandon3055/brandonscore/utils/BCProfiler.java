@@ -2,10 +2,9 @@ package com.brandon3055.brandonscore.utils;
 
 import net.covers1624.quack.util.CrashLock;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 
 import java.util.*;
 
@@ -31,8 +30,8 @@ public class BCProfiler {
     }
 
     @SubscribeEvent
-    public void clientTick(TickEvent.ClientTickEvent event) {
-        if (!enableProfiler || event.phase != TickEvent.Phase.END) {
+    public void clientTick(ClientTickEvent.Post event) {
+        if (!enableProfiler) {
             return;
         }
 
@@ -49,8 +48,8 @@ public class BCProfiler {
         RENDER.update();
     }
 
-    @SubscribeEvent
-    public void render(RenderGuiOverlayEvent.Post event) {
+//    @SubscribeEvent
+//    public void render(RenderGuiOverlayEvent.Post event) {
 //        Minecraft mc = Minecraft.getInstance();
 //        if (!enableProfiler || event.getType() != RenderGameOverlayEvent.ElementType.ALL || mc.options.renderDebug) {
 //            return;
@@ -74,7 +73,7 @@ public class BCProfiler {
 //        }
 //
 //        GlStateManager._popMatrix();
-    }
+//    }
 
 
     public static class ProfilerInstance {

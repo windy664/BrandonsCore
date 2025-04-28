@@ -4,13 +4,13 @@ import codechicken.lib.math.MathHelper;
 import com.brandon3055.brandonscore.BrandonsCore;
 import com.brandon3055.brandonscore.client.ClientOnly;
 import com.brandon3055.brandonscore.handlers.contributor.ContributorConfig.WingBehavior;
+import com.brandon3055.brandonscore.utils.Utils;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.DistExecutor;
 
 /**
  * Created by brandon3055 on 23/11/2022
@@ -70,7 +70,7 @@ public class Animations {
 
     @OnlyIn (Dist.CLIENT)
     public void tick() {
-        Boolean paused = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientOnly::isClientPaused);
+        Boolean paused = Utils.unsafeCallWhenOn(Dist.CLIENT, () -> ClientOnly::isClientPaused);
         if (paused != null && paused) return;
         ContributorConfig config = props.getConfig();
         if (config.getWingRGBBoneColour()) {

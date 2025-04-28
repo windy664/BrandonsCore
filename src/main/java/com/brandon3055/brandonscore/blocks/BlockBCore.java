@@ -6,25 +6,28 @@ import com.brandon3055.brandonscore.lib.IBCoreBlock;
 import com.brandon3055.brandonscore.lib.IChangeListener;
 import com.brandon3055.brandonscore.lib.IInteractTile;
 import com.brandon3055.brandonscore.lib.IRedstoneEmitter;
-import com.brandon3055.brandonscore.utils.ItemNBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.Nameable;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -34,14 +37,15 @@ import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * Created by brandon3055 on 18/3/2016.
  * This is the base block class form all blocks.
  */
 public class BlockBCore extends Block implements IBCoreBlock {
-    public static final String BC_TILE_DATA_TAG = "bc_tile_data";
+    //Cant register my own data without breaking server side compat, and cant use BLOCK_ENTITY_DATA, because vanilla would try to handle that, so ENTITY_DATA! Probably fine... As long as not random mods step in and do random shit to any item that happens to have ENTITY_DATA...
+    public static final DataComponentType<CustomData> BC_TILE_DATA_TAG = DataComponents.ENTITY_DATA;
+//    public static final String BC_TILE_DATA_TAG = "bc_tile_data";
     public static final String BC_MANAGED_DATA_FLAG = "bc_managed_data"; //Seemed like as good a place as any to put this.
 
     protected boolean canProvidePower = false;
@@ -70,11 +74,6 @@ public class BlockBCore extends Block implements IBCoreBlock {
     }
 
     @Override
-    public boolean isValidSpawn(BlockState state, BlockGetter level, BlockPos pos, SpawnPlacements.Type type, EntityType<?> entityType) {
-        return !blockSpawns && super.isValidSpawn(state, level, pos, type, entityType);
-    }
-
-    @Override
     public float getShadeBrightness(BlockState p_60472_, BlockGetter p_60473_, BlockPos p_60474_) {
         return isLightTransparent ? 1F : super.getShadeBrightness(p_60472_, p_60473_, p_60474_);
     }
@@ -94,14 +93,14 @@ public class BlockBCore extends Block implements IBCoreBlock {
 
         if (tile instanceof IDataRetainingTile && !BrandonsCore.proxy.isCTRLKeyDown()) {
             CompoundTag tileData = new CompoundTag();
-            ((IDataRetainingTile) tile).writeToItemStack(tileData, false);
+            ((IDataRetainingTile) tile).writeToItemStack(level.registryAccess(), tileData, false);
             if (!tileData.isEmpty()) {
-                ItemNBTHelper.getCompound(stack).put(BC_TILE_DATA_TAG, tileData);
+                stack.set(BC_TILE_DATA_TAG, CustomData.of(tileData));
             }
         }
 
         if (tile instanceof Nameable && ((Nameable) tile).hasCustomName()) {
-            stack.setHoverName(((Nameable) tile).getName());
+            stack.set(DataComponents.CUSTOM_NAME, ((Nameable) tile).getName());
         }
 
         return stack;
@@ -166,15 +165,25 @@ public class BlockBCore extends Block implements IBCoreBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (this instanceof EntityBlockBCore) {
-            BlockEntity tile = world.getBlockEntity(pos);
+            BlockEntity tile = level.getBlockEntity(pos);
             if (tile instanceof IInteractTile) {
-                return ((IInteractTile) tile).onBlockUse(state, player, hand, hit);
+                return ((IInteractTile) tile).useItemOn(stack, state, player, hand, hit);
             }
         }
+        return super.useItemOn(stack, state, level, pos, player, hand, hit);
+    }
 
-        return super.use(state, world, pos, player, hand, hit);
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (this instanceof EntityBlockBCore) {
+            BlockEntity tile = level.getBlockEntity(pos);
+            if (tile instanceof IInteractTile) {
+                return ((IInteractTile) tile).useWithoutItem(state, player, hit);
+            }
+        }
+        return super.useWithoutItem(state, level, pos, player, hit);
     }
 
     @Override
@@ -193,12 +202,12 @@ public class BlockBCore extends Block implements IBCoreBlock {
         BlockEntity tile = world.getBlockEntity(pos);
 
         if (tile instanceof IDataRetainingTile) {
-            if (stack.hasTag() && stack.getTag().contains(BC_TILE_DATA_TAG)) {
-                ((IDataRetainingTile) tile).readFromItemStack(stack.getTagElement(BC_TILE_DATA_TAG));
+            if (stack.has(BC_TILE_DATA_TAG) && !stack.get(BC_TILE_DATA_TAG).isEmpty()) {
+                ((IDataRetainingTile) tile).readFromItemStack(world.registryAccess(), stack.get(BC_TILE_DATA_TAG).copyTag());
             }
         }
 
-        if (tile instanceof TileBCore && stack.hasCustomHoverName()) {
+        if (tile instanceof TileBCore && stack.has(DataComponents.CUSTOM_NAME)) {
             ((TileBCore) tile).setCustomName(stack.getHoverName().getString());
         }
     }
@@ -209,10 +218,10 @@ public class BlockBCore extends Block implements IBCoreBlock {
 
         if (te instanceof IDataRetainingTile && ((IDataRetainingTile) te).saveToItem()) {
             CompoundTag tileData = new CompoundTag();
-            ((IDataRetainingTile) te).writeToItemStack(tileData, true);
+            ((IDataRetainingTile) te).writeToItemStack(world.registryAccess(), tileData, true);
             if (!tileData.isEmpty()) {
                 stack = new ItemStack(this, 1);//, damageDropped(state));
-                ItemNBTHelper.getCompound(stack).put(BC_TILE_DATA_TAG, tileData);
+                stack.set(BC_TILE_DATA_TAG, CustomData.of(tileData));
             }
         }
 
@@ -220,7 +229,7 @@ public class BlockBCore extends Block implements IBCoreBlock {
             if (stack == null) {
                 stack = new ItemStack(this, 1);
             }
-            stack.setHoverName(((Nameable) te).getName());
+            stack.set(DataComponents.CUSTOM_NAME, ((Nameable) te).getName());
         }
 
         if (stack != null) {
@@ -312,9 +321,9 @@ public class BlockBCore extends Block implements IBCoreBlock {
 
     @OnlyIn (Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        if (stack.hasTag() && stack.getTag().contains(BC_TILE_DATA_TAG)) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
+        super.appendHoverText(stack, context, tooltip, flagIn);
+        if (stack.has(BC_TILE_DATA_TAG)) {
             tooltip.add(Component.translatable("info.brandonscore.block_has_saved_data"));
         }
     }

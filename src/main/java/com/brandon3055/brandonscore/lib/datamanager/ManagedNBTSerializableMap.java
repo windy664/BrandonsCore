@@ -2,6 +2,8 @@ package com.brandon3055.brandonscore.lib.datamanager;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -18,13 +20,15 @@ import java.util.Map;
 public class ManagedNBTSerializableMap extends AbstractManagedData {
 
     private Map<String, INBTSerializable<CompoundTag>> valueMap;
+    private final RegistryAccess registryAccess;
     private Map<String, Tag> lastValueMap;
 
-    public ManagedNBTSerializableMap(String name, Map<String, INBTSerializable<CompoundTag>> serializableMap, DataFlags... flags) {
+    public ManagedNBTSerializableMap(String name, Map<String, INBTSerializable<CompoundTag>> serializableMap, RegistryAccess registryAccess, DataFlags... flags) {
         super(name, flags);
         this.valueMap = serializableMap;
+        this.registryAccess = registryAccess;
         lastValueMap = new HashMap<>();
-        serializableMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT()));
+        serializableMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT(registryAccess)));
     }
 
     public Map<String, INBTSerializable<CompoundTag>> get() {
@@ -38,11 +42,11 @@ public class ManagedNBTSerializableMap extends AbstractManagedData {
     public boolean isDirty(boolean reset) {
         if (lastValueMap != null && (lastValueMap.size() != valueMap.size() || (valueMap.entrySet().stream().anyMatch(entry -> {
             Tag base = lastValueMap.get(entry.getKey());
-            return base == null || !(base.equals(entry.getValue().serializeNBT()));
+            return base == null || !(base.equals(entry.getValue().serializeNBT(registryAccess)));
         })))) {
             if (reset) {
                 lastValueMap.clear();
-                valueMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT()));
+                valueMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT(registryAccess)));
             }
             return true;
         }
@@ -53,7 +57,7 @@ public class ManagedNBTSerializableMap extends AbstractManagedData {
     @Override
     public void toBytes(MCDataOutput output) {
         output.writeVarInt(valueMap.size());
-        valueMap.forEach((name, serializable) -> output.writeString(name).writeCompoundNBT(serializable.serializeNBT()));
+        valueMap.forEach((name, serializable) -> output.writeString(name).writeCompoundNBT(serializable.serializeNBT(registryAccess)));
     }
 
     @Override
@@ -63,30 +67,30 @@ public class ManagedNBTSerializableMap extends AbstractManagedData {
             String name = input.readString();
             CompoundTag nbt = input.readCompoundNBT();
             if (valueMap.containsKey(name)) {
-                valueMap.get(name).deserializeNBT(nbt);
+                valueMap.get(name).deserializeNBT(registryAccess, nbt);
             }
         }
         lastValueMap.clear();
-        valueMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT()));
+        valueMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT(registryAccess)));
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
         CompoundTag tags = new CompoundTag();
-        valueMap.forEach((name, serializable) -> tags.put(name, serializable.serializeNBT()));
+        valueMap.forEach((name, serializable) -> tags.put(name, serializable.serializeNBT(registryAccess)));
         compound.put(name, tags);
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         CompoundTag tags = compound.getCompound(name);
         for (String name : new ArrayList<>(valueMap.keySet())) {
             if (tags.contains(name)) {
-                valueMap.get(name).deserializeNBT(tags.getCompound(name));
+                valueMap.get(name).deserializeNBT(registryAccess, tags.getCompound(name));
             }
         }
         lastValueMap.clear();
-        valueMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT()));
+        valueMap.forEach((key, value) -> lastValueMap.put(key, value.serializeNBT(registryAccess)));
     }
 
     @Override

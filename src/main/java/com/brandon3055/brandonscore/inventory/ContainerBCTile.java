@@ -131,7 +131,7 @@ public abstract class ContainerBCTile<T extends TileBCore> extends ModularGuiCon
     }
 
     public PacketCustom createServerBoundPacket(int packetType) {
-        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, packetType);
+        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, packetType, tile.getLevel().registryAccess());
         packet.writeInt(containerId);
         return packet;
     }

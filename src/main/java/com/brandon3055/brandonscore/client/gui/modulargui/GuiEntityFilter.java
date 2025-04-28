@@ -217,7 +217,7 @@ public class GuiEntityFilter extends GuiElement<GuiEntityFilter> {
 
         GuiTextField nameField = new GuiTextField(node)
                 .setTextState(TextState.create(() -> node.getNode().getEntityName(), s -> node.getNode().setEntityName(s)))
-                .setFilter(ResourceLocation::isValidResourceLocation)
+                .setFilter(s -> ResourceLocation.tryParse(s) != null)
                 .setTextColor(() -> BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.tryParse(node.getNode().getEntityName())) ? 0x00FF00 : 0xFF0000)
                 .setTooltip(() -> {
                     ResourceLocation name = ResourceLocation.tryParse(node.getNode().getEntityName());
@@ -353,7 +353,7 @@ public class GuiEntityFilter extends GuiElement<GuiEntityFilter> {
         GuiTextField tagField = new GuiTextField(node)
                 .setEnabled(() -> node.getNode().isTagMode())
                 .setTextState(TextState.create(() -> node.getNode().getTagString(), s -> node.getNode().setTagString(s)))
-                .setFilter(ResourceLocation::isValidResourceLocation)
+                .setFilter(s -> ResourceLocation.tryParse(s) != null)
                 .setTextColor(() -> BuiltInRegistries.ITEM.getTags().anyMatch(e -> e.equals(node.getNode().getTag())) ? 0x00FF00 : 0xFF0000)
                 .setTooltipSingle(() -> {
                     boolean match = BuiltInRegistries.ITEM.getTags().anyMatch(e -> e.equals(node.getNode().getTag()));

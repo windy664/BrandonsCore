@@ -60,6 +60,6 @@ public class ServerPacketHandler implements ICustomPacketHandler.IServerPacketHa
         BlockHitResult traceResult = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
         PlayerInteractEvent.RightClickBlock event = new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, traceResult);
         NeoForge.EVENT_BUS.post(event);
-        return event.getResult() != Event.Result.DENY;
+        return !event.isCanceled();
     }
 }

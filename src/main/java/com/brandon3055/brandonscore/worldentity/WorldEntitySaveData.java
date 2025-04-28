@@ -1,5 +1,6 @@
 package com.brandon3055.brandonscore.worldentity;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -32,17 +33,20 @@ public class WorldEntitySaveData extends SavedData {
         return entities;
     }
 
-    public static WorldEntitySaveData load(CompoundTag nbt) {
+    public static WorldEntitySaveData load(CompoundTag nbt, HolderLookup.Provider provider) {
         WorldEntitySaveData data = new WorldEntitySaveData();
         ListTag list = nbt.getList("entities", 10);
         for (Tag inbt : list) {
-            data.entities.add(WorldEntity.readWorldEntity((CompoundTag) inbt));
+            WorldEntity entity = WorldEntity.readWorldEntity((CompoundTag) inbt);
+            if (entity != null) {
+                data.entities.add(entity);
+            }
         }
         return data;
     }
 
     @Override
-    public CompoundTag save(CompoundTag compound) {
+    public CompoundTag save(CompoundTag compound, HolderLookup.Provider provider) {
         ListTag list = new ListTag();
         for (WorldEntity entity : entities) {
             CompoundTag entityTag = new CompoundTag();
@@ -54,9 +58,9 @@ public class WorldEntitySaveData extends SavedData {
     }
 
     @Override
-    public void save(File fileIn) {
+    public void save(File fileIn, HolderLookup.Provider provider) {
         setDirty(true);
         saveCallback.run();
-        super.save(fileIn);
+        super.save(fileIn, provider);
     }
 }

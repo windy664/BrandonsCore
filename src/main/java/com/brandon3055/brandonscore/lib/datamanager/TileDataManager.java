@@ -9,6 +9,7 @@ import com.brandon3055.brandonscore.inventory.ContainerBCTile;
 import com.brandon3055.brandonscore.lib.DelayedTask;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
 import com.brandon3055.brandonscore.utils.DataUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -73,7 +74,7 @@ public class TileDataManager<T extends BlockEntity & IDataManagerProvider> imple
     }
 
     /**
-     * This method is called each tick by {@link ContainerBCore} to sent updates to container listeners.
+     * This method is called each tick by {@link ContainerBCTile} to sent updates to container listeners.
      *
      * @param listeners The list of container listeners.
      */
@@ -143,7 +144,7 @@ public class TileDataManager<T extends BlockEntity & IDataManagerProvider> imple
 
     @Override
     public PacketCustom createSyncPacket() {
-        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_DATA_MANAGER);
+        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_DATA_MANAGER, tile.getLevel().registryAccess());
         packet.writePos(tile.getBlockPos());
         return packet;
     }
@@ -172,17 +173,17 @@ public class TileDataManager<T extends BlockEntity & IDataManagerProvider> imple
     }
 
     @Override
-    public void writeToNBT(CompoundTag compound) {
+    public void writeToNBT(HolderLookup.Provider provider, CompoundTag compound) {
         CompoundTag dataTag = new CompoundTag();
-        DataUtils.forEachMatch(managedDataList, data -> data.flags().saveNBT, data -> data.toNBT(dataTag));
+        DataUtils.forEachMatch(managedDataList, data -> data.flags().saveNBT, data -> data.toNBT(provider, dataTag));
         compound.put(BlockBCore.BC_MANAGED_DATA_FLAG, dataTag);
     }
 
     @Override
-    public void readFromNBT(CompoundTag compound) {
+    public void readFromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (compound.contains(BlockBCore.BC_MANAGED_DATA_FLAG, 10)) {
             CompoundTag dataTag = compound.getCompound(BlockBCore.BC_MANAGED_DATA_FLAG);
-            DataUtils.forEachMatch(managedDataList, data -> data.flags().saveNBT, data -> data.fromNBT(dataTag));
+            DataUtils.forEachMatch(managedDataList, data -> data.flags().saveNBT, data -> data.fromNBT(provider, dataTag));
         }
     }
 
@@ -242,34 +243,34 @@ public class TileDataManager<T extends BlockEntity & IDataManagerProvider> imple
     /**
      * Used to sync data via getUpdatePacket and getUpdateTag in TileEntity
      */
-    public void writeSyncNBT(CompoundTag compound) {
+    public void writeSyncNBT(HolderLookup.Provider provider, CompoundTag compound) {
         CompoundTag dataTag = new CompoundTag();
-        DataUtils.forEachMatch(managedDataList, data -> data.flags().syncViaPacket(), data -> data.toNBT(dataTag));
+        DataUtils.forEachMatch(managedDataList, data -> data.flags().syncViaPacket(), data -> data.toNBT(provider, dataTag));
         compound.put(BlockBCore.BC_MANAGED_DATA_FLAG, dataTag);
     }
 
-    public void readSyncNBT(CompoundTag compound) {
+    public void readSyncNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (compound.contains(BlockBCore.BC_MANAGED_DATA_FLAG, 10)) {
             CompoundTag dataTag = compound.getCompound(BlockBCore.BC_MANAGED_DATA_FLAG);
-            DataUtils.forEachMatch(managedDataList, data -> data.flags().syncViaPacket(), data -> data.fromNBT(dataTag));
+            DataUtils.forEachMatch(managedDataList, data -> data.flags().syncViaPacket(), data -> data.fromNBT(provider, dataTag));
         }
     }
 
     /**
      * Used to save data to the itemstack when the tile is broken.
      */
-    public void writeToStackNBT(CompoundTag compound) {
+    public void writeToStackNBT(HolderLookup.Provider provider, CompoundTag compound) {
         CompoundTag dataTag = new CompoundTag();
-        DataUtils.forEachMatch(managedDataList, data -> data.flags().saveItem, data -> data.toNBT(dataTag));
+        DataUtils.forEachMatch(managedDataList, data -> data.flags().saveItem, data -> data.toNBT(provider, dataTag));
         if (!dataTag.isEmpty()) {
             compound.put(BlockBCore.BC_MANAGED_DATA_FLAG, dataTag);
         }
     }
 
-    public void readFromStackNBT(CompoundTag compound) {
+    public void readFromStackNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (compound.contains(BlockBCore.BC_MANAGED_DATA_FLAG, 10)) {
             CompoundTag dataTag = compound.getCompound(BlockBCore.BC_MANAGED_DATA_FLAG);
-            DataUtils.forEachMatch(managedDataList, data -> data.flags().saveItem, data -> data.fromNBT(dataTag));
+            DataUtils.forEachMatch(managedDataList, data -> data.flags().saveItem, data -> data.fromNBT(provider, dataTag));
         }
     }
 }

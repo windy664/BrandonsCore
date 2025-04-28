@@ -33,7 +33,7 @@ public class DummyHumanoidModel<T extends LivingEntity> extends HumanoidModel<T>
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, float r, float g, float b, float a) {}
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int colour) {}
 
     @Override
     protected Iterable<ModelPart> headParts() {

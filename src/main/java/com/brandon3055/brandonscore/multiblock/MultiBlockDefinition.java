@@ -158,11 +158,11 @@ public class MultiBlockDefinition {
 
             JsonObject keyVal = entry.getValue().getAsJsonObject();
             if (keyVal.has("tag")) {
-                ResourceLocation resourcelocation = new ResourceLocation(keyVal.get("tag").getAsString());
+                ResourceLocation resourcelocation = ResourceLocation.parse(keyVal.get("tag").getAsString());
                 TagKey<Block> tagkey = TagKey.create(Registries.BLOCK, resourcelocation);
                 keyMap.put(key, new TagPart(tagkey));
             } else if (keyVal.has("block")) {
-                ResourceLocation resourcelocation = new ResourceLocation(keyVal.get("block").getAsString());
+                ResourceLocation resourcelocation = ResourceLocation.parse(keyVal.get("block").getAsString());
                 if (BuiltInRegistries.BLOCK.getKey(Blocks.AIR).equals(resourcelocation)) {
                     keyMap.put(key, new EmptyPart());
                 } else {

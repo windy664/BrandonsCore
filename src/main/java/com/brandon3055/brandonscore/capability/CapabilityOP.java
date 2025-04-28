@@ -18,9 +18,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public class CapabilityOP {
 
-    public static final BlockCapability<IOPStorage, @Nullable Direction> BLOCK = BlockCapability.createSided(new ResourceLocation(BrandonsCore.MODID, "op"), IOPStorage.class);
-    public static final EntityCapability<IOPStorage, @Nullable Direction> ENTITY = EntityCapability.createSided(new ResourceLocation(BrandonsCore.MODID, "op"), IOPStorage.class);
-    public static final ItemCapability<IOPStorage, Void> ITEM = ItemCapability.createVoid(new ResourceLocation(BrandonsCore.MODID, "op"), IOPStorage.class);
+    public static final BlockCapability<IOPStorage, @Nullable Direction> BLOCK = BlockCapability.createSided(ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, "op"), IOPStorage.class);
+    public static final EntityCapability<IOPStorage, @Nullable Direction> ENTITY = EntityCapability.createSided(ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, "op"), IOPStorage.class);
+    public static final ItemCapability<IOPStorage, Void> ITEM = ItemCapability.createVoid(ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, "op"), IOPStorage.class);
 
     private CapabilityOP() {}
 

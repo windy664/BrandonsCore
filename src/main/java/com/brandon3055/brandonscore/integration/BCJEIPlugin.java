@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 @JeiPlugin
 public class BCJEIPlugin implements IModPlugin {
 
-    private static final ResourceLocation ID = new ResourceLocation(BrandonsCore.MODID, "jei_plugin");
+    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, "jei_plugin");
     public static IJeiRuntime jeiRuntime = null;
 //    public static IIngredientRegistry ingredientRegistry = null;
 

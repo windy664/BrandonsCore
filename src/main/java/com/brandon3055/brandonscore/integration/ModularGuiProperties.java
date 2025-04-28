@@ -65,37 +65,37 @@ public class ModularGuiProperties implements IGuiProperties {
 	}
 
 	@Override
-	public Class<? extends Screen> getScreenClass() {
+	public Class<? extends Screen> screenClass() {
 		return screenClass;
 	}
 
 	@Override
-	public int getGuiLeft() {
+	public int guiLeft() {
 		return guiLeft;
 	}
 
 	@Override
-	public int getGuiTop() {
+	public int guiTop() {
 		return guiTop;
 	}
 
 	@Override
-	public int getGuiXSize() {
+	public int guiXSize() {
 		return guiXSize;
 	}
 
 	@Override
-	public int getGuiYSize() {
+	public int guiYSize() {
 		return guiYSize;
 	}
 
 	@Override
-	public int getScreenWidth() {
+	public int screenWidth() {
 		return screenWidth;
 	}
 
 	@Override
-	public int getScreenHeight() {
+	public int screenHeight() {
 		return screenHeight;
 	}
 }

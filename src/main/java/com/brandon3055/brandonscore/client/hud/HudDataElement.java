@@ -100,15 +100,14 @@ public class HudDataElement extends AbstractHudElement {
     @Override
     public void render(GuiRender render, float partialTicks, boolean configuring) {
         if (!enabled || (activeHud == null && !configuring)) return;
-        MultiBufferSource.BufferSource getter = RenderUtils.getGuiBuffers();
         render.pose().translate(xPos(), yPos(), 0);
         if (activeHud == null) {
             render.toolTipBackground(0, 0, width(), height());
-            getter.endBatch();
+            render.flush();
             return;
         }
         activeHud.renderHudBackground(render, width(), height(), displayList);
-        getter.endBatch();
+        render.flush();
         activeHud.renderHudContent(render, width(), height(), displayList);
     }
 }

@@ -13,10 +13,10 @@ import com.brandon3055.brandonscore.inventory.BlockToStackHelper;
 import com.brandon3055.brandonscore.lib.IEquipmentManager;
 import com.brandon3055.brandonscore.multiblock.MultiBlockManager;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
+import com.brandon3055.brandonscore.utils.Utils;
 import com.brandon3055.brandonscore.worldentity.WorldEntityHandler;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.DistExecutor;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
@@ -42,7 +42,7 @@ public class BrandonsCore {
         BrandonsCore.container = container;
         FileHandler.init();
         ModHelperBC.init();
-        proxy = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+        proxy = Utils.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
         inDev = ModHelperBC.getModVersion(MODID).equals("0.0NONE");
 
         //Knock Knock...
@@ -72,7 +72,7 @@ public class BrandonsCore {
         BCCommands.init();
         SighEditHandler.init();
         BCContent.init(modBus);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BCClient.init(modBus));
+        Utils.unsafeRunWhenOn(Dist.CLIENT, () -> () -> BCClient.init(modBus));
     }
 
     public static ModContainer container() {

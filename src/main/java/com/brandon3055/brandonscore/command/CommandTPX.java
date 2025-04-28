@@ -21,6 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -176,15 +177,15 @@ public class CommandTPX {
 
             entityIn.setYHeadRot(yaw);
         } else {
-            float f1 = Mth.wrapDegrees(yaw);
-            float f = Mth.wrapDegrees(pitch);
-            f = Mth.clamp(f, -90.0F, 90.0F);
+            float wrapYaw = Mth.wrapDegrees(yaw);
+            float wrapPitch = Mth.wrapDegrees(pitch);
+            wrapPitch = Mth.clamp(wrapPitch, -90.0F, 90.0F);
             if (worldIn == entityIn.level()) {
-                entityIn.moveTo(x, y, z, f1, f);
-                entityIn.setYHeadRot(f1);
+                entityIn.moveTo(x, y, z, wrapYaw, wrapPitch);
+                entityIn.setYHeadRot(wrapYaw);
             } else {
                 entityIn.unRide();
-                entityIn.changeDimension(worldIn);
+                entityIn.changeDimension(new DimensionTransition(worldIn, new Vec3(x, y, z), entityIn.getDeltaMovement(), wrapYaw, wrapPitch, DimensionTransition.DO_NOTHING));
                 Entity entity = entityIn;
                 entityIn = entityIn.getType().create(worldIn);
                 if (entityIn == null) {
@@ -192,8 +193,8 @@ public class CommandTPX {
                 }
 
                 entityIn.restoreFrom(entity);
-                entityIn.moveTo(x, y, z, f1, f);
-                entityIn.setYHeadRot(f1);
+                entityIn.moveTo(x, y, z, wrapYaw, wrapPitch);
+                entityIn.setYHeadRot(wrapYaw);
                 worldIn.addDuringTeleport(entityIn);
             }
         }

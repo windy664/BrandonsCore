@@ -20,7 +20,7 @@ public class ContribShader extends BCShader<ContribShader> {
     private CCUniform hueUniform;
 
     public ContribShader(String path, VertexFormat format) {
-        super(new ResourceLocation(BrandonsCore.MODID, path), format);
+        super(ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, path), format);
     }
 
     public ContribShader(ResourceLocation location, VertexFormat format) {

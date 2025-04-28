@@ -7,16 +7,13 @@ import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.sprite.Material;
 import codechicken.lib.render.buffer.TransformingVertexConsumer;
 import codechicken.lib.util.FormatUtil;
-import com.brandon3055.brandonscore.BCConfig;
 import com.brandon3055.brandonscore.api.power.IOInfo;
 import com.brandon3055.brandonscore.api.power.IOPStorage;
 import com.brandon3055.brandonscore.client.BCGuiTextures;
-import com.brandon3055.brandonscore.client.render.RenderUtils;
 import com.brandon3055.brandonscore.client.shader.BCShaders;
 import com.brandon3055.brandonscore.utils.EnergyUtils;
 import com.brandon3055.brandonscore.utils.Utils;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
@@ -25,7 +22,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -37,9 +33,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-import static com.brandon3055.brandonscore.BCConfig.darkMode;
 import static net.minecraft.ChatFormatting.*;
-import static net.minecraft.ChatFormatting.GRAY;
 
 /**
  * Created by brandon3055 on 13/02/2024
@@ -185,7 +179,7 @@ public class ShaderEnergyBar extends GuiEnergyBar {
             BCShaders.energyBarESize.glUniform2i(rect.width, rect.height);
             BCShaders.energyBarScreenSize.glUniform2i(mc().getWindow().getWidth(), mc().getWindow().getHeight());
             VertexConsumer shaderConsumer = new TransformingVertexConsumer(getter.getBuffer(SHADER_TYPE), render.pose());
-            drawShaderRect(shaderConsumer, posX, posY, barWidth, barLength);
+            drawShaderRect(shaderConsumer, (float) posX, (float) posY, (float) barWidth, (float) barLength);
         }
         getter.endBatch();
         if (horizontal) {
@@ -193,12 +187,12 @@ public class ShaderEnergyBar extends GuiEnergyBar {
         }
     }
 
-    private void drawShaderRect(VertexConsumer buffer, double x, double y, double width, double height) {
+    private void drawShaderRect(VertexConsumer buffer, float x, float y, float width, float height) {
         //@formatter:off
-        buffer.vertex(x,           y + height, 0).endVertex();
-        buffer.vertex(x + width,   y + height, 0).endVertex();
-        buffer.vertex(x + width,   y,          0).endVertex();
-        buffer.vertex(x,           y,          0).endVertex();
+        buffer.addVertex(x,          y + height, 0);
+        buffer.addVertex(x + width,  y + height, 0);
+        buffer.addVertex(x + width,  y,          0);
+        buffer.addVertex(x,          y,          0);
         //@formatter:on
     }
 
@@ -211,16 +205,16 @@ public class ShaderEnergyBar extends GuiEnergyBar {
         float vScale = (sprite.getV1() - texV) / texHeight;
         for (double i = 0; i < ySize; i += Math.min(texHeight - 2, ySize - i)) {
             double partSize = Math.min(texHeight, ySize - i);
-            bufferRect(buffer, xPos, yPos + ySize - i, xSize, -partSize, sprite.getU0(), sprite.getV0(), (float) xSize * uScale, (float) partSize * vScale);
+            bufferRect(buffer, (float) xPos, (float) yPos + (float) ySize - (float) i, (float) xSize, (float) -partSize, sprite.getU0(), sprite.getV0(), (float) xSize * uScale, (float) partSize * vScale);
         }
     }
 
-    private void bufferRect(VertexConsumer buffer, double x, double y, double width, double height, float minU, float minV, float tWidth, float tHeight) {
+    private void bufferRect(VertexConsumer buffer, float x, float y, float width, float height, float minU, float minV, float tWidth, float tHeight) {
         //@formatter:off
-        buffer.vertex(x,           y + height, 0).color(1F, 1F, 1F, 1F).uv(minU, minV + tHeight).endVertex();
-        buffer.vertex(x + width,   y + height, 0).color(1F, 1F, 1F, 1F).uv(minU + tWidth, minV + tHeight).endVertex();
-        buffer.vertex(x + width,   y,          0).color(1F, 1F, 1F, 1F).uv(minU + tWidth, minV).endVertex();
-        buffer.vertex(x,           y,          0).color(1F, 1F, 1F, 1F).uv(minU, minV).endVertex();
+        buffer.addVertex(x,           y + height, 0).setColor(1F, 1F, 1F, 1F).setUv(minU, minV + tHeight);
+        buffer.addVertex(x + width,   y + height, 0).setColor(1F, 1F, 1F, 1F).setUv(minU + tWidth, minV + tHeight);
+        buffer.addVertex(x + width,   y,          0).setColor(1F, 1F, 1F, 1F).setUv(minU + tWidth, minV);
+        buffer.addVertex(x,           y,          0).setColor(1F, 1F, 1F, 1F).setUv(minU, minV);
         //@formatter:on
     }
 

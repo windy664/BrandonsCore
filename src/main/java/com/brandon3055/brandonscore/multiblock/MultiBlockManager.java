@@ -4,6 +4,7 @@ import codechicken.lib.packet.PacketCustom;
 import codechicken.lib.vec.Quat;
 import codechicken.lib.vec.Rotation;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
+import com.brandon3055.brandonscore.utils.Utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -20,7 +21,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.DistExecutor;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -59,8 +59,8 @@ public class MultiBlockManager extends SimpleJsonResourceReloadListener {
 
     public static void init() {
         NeoForge.EVENT_BUS.addListener(MultiBlockManager::addReloadListeners);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> NeoForge.EVENT_BUS.addListener(MultiBlockManager::onDisconnectFromServer));
-        DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> NeoForge.EVENT_BUS.addListener(MultiBlockManager::onSendDataToClient));
+        Utils.unsafeRunWhenOn(Dist.CLIENT, () -> () -> NeoForge.EVENT_BUS.addListener(MultiBlockManager::onDisconnectFromServer));
+        Utils.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> NeoForge.EVENT_BUS.addListener(MultiBlockManager::onSendDataToClient));
     }
 
     public static void addReloadListeners(AddReloadListenerEvent event) {

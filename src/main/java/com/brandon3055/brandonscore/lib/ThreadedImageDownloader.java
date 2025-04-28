@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 public class ThreadedImageDownloader extends SimpleTexture {
 
     private static final Logger LOGGER = LogHelperBC.logger;
-    private DLResourceLocation dlLocation = null;
+    private DLResource dlLocation = null;
 
     @Nullable
     private final File cacheFile;
@@ -40,8 +40,8 @@ public class ThreadedImageDownloader extends SimpleTexture {
      * @param imageUrl        The image URL.
      * @param textureLocation This should be a new resource location linked to some "Loading" texture. Once the image is downloaded this location will be rebound to the downloaded image automatically.
      */
-    public ThreadedImageDownloader(File cacheFile, String imageUrl, DLResourceLocation textureLocation) {
-        super(textureLocation);
+    public ThreadedImageDownloader(File cacheFile, String imageUrl, DLResource textureLocation) {
+        super(textureLocation.resource);
         this.cacheFile = cacheFile;
         this.imageUrl = imageUrl;
     }
@@ -49,7 +49,7 @@ public class ThreadedImageDownloader extends SimpleTexture {
     /**
      * If sized location is set its width and height will be updated when the texture download is complete
      */
-    public void setDlLocation(DLResourceLocation dlLocation) {
+    public void setDlLocation(DLResource dlLocation) {
         this.dlLocation = dlLocation;
     }
 

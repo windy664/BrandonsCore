@@ -3,6 +3,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import com.brandon3055.brandonscore.lib.Vec3I;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
@@ -108,7 +109,7 @@ public class ManagedVec3I extends AbstractManagedData<Vec3I> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
         ListTag list = new ListTag();
         list.add(IntTag.valueOf(value.x));
         list.add(IntTag.valueOf(value.y));
@@ -117,7 +118,7 @@ public class ManagedVec3I extends AbstractManagedData<Vec3I> {
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         value = new Vec3I();
         if (compound.getList(name, 3).size() == 3) {
             ListTag list = compound.getList(name, 3);

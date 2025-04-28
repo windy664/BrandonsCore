@@ -3,6 +3,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.math.MathHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -102,7 +103,7 @@ public class ManagedEnum<T extends Enum<T>> extends AbstractManagedData<T> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
         CompoundTag nbt = new CompoundTag();
         if (value == null) {
             nbt.putBoolean("null", true);
@@ -113,7 +114,7 @@ public class ManagedEnum<T extends Enum<T>> extends AbstractManagedData<T> {
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (compound.contains(name, 10)) {
             CompoundTag nbt = compound.getCompound(name);
             if (nbt.contains("null")) {

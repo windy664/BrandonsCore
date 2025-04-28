@@ -25,7 +25,7 @@ public class ExtendedModelPart extends ModelPart {
     }
 
     @Override
-    public final void render(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, float r, float g, float b, float a) {}
+    public final void render(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int colour) {}
 
     public final void render(PoseStack poseStack, MultiBufferSource getter, int packedLight, int packedOverlay) {
         render(poseStack, getter, packedLight, packedOverlay, 1F, 1F, 1F, 1F);

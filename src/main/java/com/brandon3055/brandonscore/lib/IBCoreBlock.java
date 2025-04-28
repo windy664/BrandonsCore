@@ -8,11 +8,11 @@ import net.minecraft.world.item.ItemStack;
  */
 public interface IBCoreBlock {
 
-    default boolean overrideShareTag() {
-        return false;
-    }
-
-    default CompoundTag getNBTShareTag(ItemStack stack) {
-        return stack.getTag();
-    }
+//    default boolean overrideShareTag() {
+//        return false;
+//    }
+//
+//    default CompoundTag getNBTShareTag(ItemStack stack) {
+//        return stack.getTag();
+//    }
 }

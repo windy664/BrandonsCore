@@ -5,6 +5,7 @@ import codechicken.lib.data.MCDataOutput;
 import com.brandon3055.brandonscore.utils.LogHelperBC;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -84,13 +85,13 @@ public class FilterGroup extends FilterBase {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag compound = super.serializeNBT();
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag compound = super.serializeNBT(provider);
         compound.putBoolean("and_group", andGroup);
         if (!subNodeMap.isEmpty()) {
             ListTag subs = new ListTag();
             subNodeMap.values().forEach(node -> {
-                CompoundTag tag = node.serializeNBT();
+                CompoundTag tag = node.serializeNBT(provider);
                 tag.putByte("filter_type", (byte) node.getType().index);
                 subs.add(tag);
             });
@@ -100,8 +101,8 @@ public class FilterGroup extends FilterBase {
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        super.deserializeNBT(nbt);
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        super.deserializeNBT(provider, nbt);
         andGroup = nbt.getBoolean("and_group");
         subNodeMap.clear();
         if (nbt.contains("sub_nodes")) {
@@ -110,7 +111,7 @@ public class FilterGroup extends FilterBase {
                 FilterType type = FilterType.filterTypeMap[((CompoundTag) tag).getByte("filter_type")];
                 FilterBase node = type.createNode(getFilter());
                 node.onLoaded(this);
-                node.deserializeNBT((CompoundTag) tag);
+                node.deserializeNBT(provider, (CompoundTag) tag);
                 if (node.nodeID == 0 && !(node instanceof EntityFilter)) {
                     LogHelperBC.warn("EntityFilter: Skipping broken filter node");
                     continue; //Something broke and this node lost its id so it has to go!

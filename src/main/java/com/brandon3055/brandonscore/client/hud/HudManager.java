@@ -13,9 +13,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
@@ -32,7 +32,7 @@ import static com.brandon3055.brandonscore.BrandonsCore.MODID;
 public class HudManager {
     private static final CrashLock LOCK = new CrashLock("Already Initialized");
 
-    public static final ResourceKey<Registry<AbstractHudElement>> HUD_TYPE = ResourceKey.createRegistryKey(new ResourceLocation(MODID, "hud_elements"));
+    public static final ResourceKey<Registry<AbstractHudElement>> HUD_TYPE = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(MODID, "hud_elements"));
     public static Registry<AbstractHudElement> HUD_REGISTRY;
     protected static Map<ResourceLocation, AbstractHudElement> hudElements = new HashMap<>();
 
@@ -55,7 +55,7 @@ public class HudManager {
         for (AbstractHudElement element : hudElements.values()) {
             if (element.shouldRender(true)) {
                 render.pose().pushPose();
-                element.render(render, event.getPartialTick(), configuring);
+                element.render(render, event.getPartialTick().getGameTimeDeltaPartialTick(false), configuring);
                 render.pose().popPose();
             }
         }
@@ -67,14 +67,13 @@ public class HudManager {
         for (AbstractHudElement element : hudElements.values()) {
             if (element.shouldRender(false)) {
                 render.pose().pushPose();
-                element.render(render, event.getPartialTick(), configuring);
+                element.render(render, event.getPartialTick().getGameTimeDeltaPartialTick(false), configuring);
                 render.pose().popPose();
             }
         }
     }
 
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
+    public static void onClientTick(ClientTickEvent.Pre event) {
         boolean configuring = Minecraft.getInstance().screen instanceof HudConfigGui.Screen;
         for (AbstractHudElement element : hudElements.values()) {
             element.tick(configuring);
@@ -97,9 +96,9 @@ public class HudManager {
     }
 
     public static void registerBuiltIn(RegisterEvent event) {
-        event.register(HUD_TYPE, new ResourceLocation(MODID, "item_hud"), () -> new HudDataElement(new Vector2(0, 0.20494), true, false).setEnabled(false));
-        event.register(HUD_TYPE, new ResourceLocation(MODID, "block_hud"), () -> new HudDataElement(new Vector2(0, 0.04593), false, true).setEnabled(false));
-        event.register(HUD_TYPE, new ResourceLocation(MODID, "block_item_hud"), () -> new HudDataElement(new Vector2(0.99023, 0.72438), true, true));
+        event.register(HUD_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "item_hud"), () -> new HudDataElement(new Vector2(0, 0.20494), true, false).setEnabled(false));
+        event.register(HUD_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "block_hud"), () -> new HudDataElement(new Vector2(0, 0.04593), false, true).setEnabled(false));
+        event.register(HUD_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "block_item_hud"), () -> new HudDataElement(new Vector2(0.99023, 0.72438), true, true));
     }
 
     //Utils, getters, setters

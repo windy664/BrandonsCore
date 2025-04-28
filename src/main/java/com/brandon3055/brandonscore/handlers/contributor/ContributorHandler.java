@@ -4,7 +4,6 @@ import codechicken.lib.packet.PacketCustom;
 import com.brandon3055.brandonscore.handlers.contributor.ContributorConfig.WingElytraCompat;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
 import net.covers1624.quack.util.CrashLock;
-import net.minecraft.Util;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -12,8 +11,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public class ContributorHandler {
     //ClientPlayerNetworkEvent.LoggedInEvent, Registered in ClientInit.
     public static void onClientLogin(Player player) {
         getPropsCallback(player, props -> {
-            BCoreNetwork.sendContributorConfigToServer(props);
+            BCoreNetwork.sendContributorConfigToServer(props, player.registryAccess());
             sendWelcomeMessage(player, props);
         });
     }
@@ -59,12 +58,11 @@ public class ContributorHandler {
                     .stream()
                     .filter(ContributorProperties::isContributor)
                     .filter(e -> !e.getUserID().equals(player.getUUID()))
-                    .forEach(e -> BCoreNetwork.contributorConfigToClient(e).sendToPlayer(player));
+                    .forEach(e -> BCoreNetwork.contributorConfigToClient(e, player.registryAccess()).sendToPlayer(player));
         }
     }
 
-    private static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
+    private static void onClientTick(ClientTickEvent.Pre event) {
         CONTRIBUTOR_MAP.values().forEach(ContributorProperties::clientTick);
     }
 
@@ -123,7 +121,7 @@ public class ContributorHandler {
                 props.setConfig(newConfig);
 //                BrandonsCore.LOGGER.info("handleSettingsFromClient: Accepted Client Settings: " + sender);
             }
-            BCoreNetwork.sentToAllExcept(BCoreNetwork.contributorConfigToClient(props), sender);
+            BCoreNetwork.sentToAllExcept(BCoreNetwork.contributorConfigToClient(props, sender.registryAccess()), sender);
         });
     }
 
@@ -150,7 +148,7 @@ public class ContributorHandler {
 
     //Client side
     public static void linkSuccessful(Player player) {
-        BCoreNetwork.sendContribLinkToServer();
+        BCoreNetwork.sendContribLinkToServer(player.registryAccess());
         reload();
 //        BrandonsCore.LOGGER.info("linkSuccessful: Link Successful");
         getPropsCallback(player, props -> sendWelcomeMessage(player, props));

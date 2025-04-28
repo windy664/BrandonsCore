@@ -77,7 +77,7 @@ public class HudData {
             JsonObject element = (JsonObject) parser.parse(reader);
 
             for (Map.Entry<String, JsonElement> entry : element.entrySet()) {
-                ResourceLocation key = new ResourceLocation(entry.getKey());
+                ResourceLocation key = ResourceLocation.parse(entry.getKey());
                 if (hudElements.containsKey(key)) {
                     CompoundTag nbt = TagParser.parseTag(entry.getValue().getAsString());
                     hudElements.get(key).readNBT(nbt);

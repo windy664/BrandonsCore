@@ -2,7 +2,9 @@ package com.brandon3055.brandonscore.lib.datamanager;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import com.brandon3055.brandonscore.utils.Utils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 
@@ -96,8 +98,8 @@ public class ManagedPos extends AbstractManagedData<BlockPos> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
-        CompoundTag nbt = value == null ? new CompoundTag() : NbtUtils.writeBlockPos(value);
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
+        CompoundTag nbt = value == null ? new CompoundTag() : Utils.writeBlockPos(value);
         if (value == null) {
             nbt.putBoolean("null", true);
         }
@@ -105,7 +107,7 @@ public class ManagedPos extends AbstractManagedData<BlockPos> {
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (!compound.contains(name, 10)) {
             value = defaultValue == null ? null : new BlockPos(defaultValue);
         }else {
@@ -113,7 +115,7 @@ public class ManagedPos extends AbstractManagedData<BlockPos> {
             if (nbt.contains("null")) {
                 value = null;
             } else {
-                value = NbtUtils.readBlockPos(nbt);
+                value = Utils.readBlockPos(nbt);
             }
         }
         notifyListeners(value);

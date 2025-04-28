@@ -1,6 +1,7 @@
 package com.brandon3055.brandonscore.capability;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -45,14 +46,14 @@ public class MultiCapabilityProvider implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        nameMap.forEach((s, t) -> tag.put(s, t.serializeNBT()));
+        nameMap.forEach((s, t) -> tag.put(s, t.serializeNBT(provider)));
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        nameMap.forEach((s, t) -> t.deserializeNBT(nbt.getCompound(s)));
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        nameMap.forEach((s, t) -> t.deserializeNBT(provider, nbt.getCompound(s)));
     }
 }

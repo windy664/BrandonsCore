@@ -2,6 +2,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -49,12 +50,12 @@ public interface IManagedData {
      * The data manager should create a dedicated compound to save all data to so
      * so you should not have to worry about the tag mame conflicting with some other random tag on the tile/item etc
      */
-    void toNBT(CompoundTag compound);
+    void toNBT(HolderLookup.Provider provider, CompoundTag compound);
 
     /**
      * Load this data from nbt.
      */
-    void fromNBT(CompoundTag compound);
+    void fromNBT(HolderLookup.Provider provider, CompoundTag compound);
 
     /**
      * Marks this data as 'dirty' meaning it needs to be saved/synchronized

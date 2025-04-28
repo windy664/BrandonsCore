@@ -18,6 +18,7 @@ import com.brandon3055.brandonscore.network.BCoreNetwork;
 import com.brandon3055.brandonscore.utils.EnergyUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -137,17 +138,17 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag compound = super.getUpdateTag();
-        dataManager.writeSyncNBT(compound);
-        writeExtraNBT(compound);
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag compound = super.getUpdateTag(provider);
+        dataManager.writeSyncNBT(provider, compound);
+        writeExtraNBT(provider, compound);
         return compound;
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        dataManager.readSyncNBT(pkt.getTag());
-        readExtraNBT(pkt.getTag());
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
+        dataManager.readSyncNBT(provider, pkt.getTag());
+        readExtraNBT(provider, pkt.getTag());
     }
 
     public PacketCustom createServerBoundPacket(int id) {
@@ -160,7 +161,7 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
                 return packet;
             }
         }
-        return new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.S_DUMMY_PACKET);
+        return new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.S_DUMMY_PACKET, getLevel().registryAccess());
     }
 
     /**
@@ -184,7 +185,7 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
     }
 
     public PacketCustom createClientBoundPacket(int id) {
-        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_MESSAGE);
+        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_MESSAGE, getLevel().registryAccess());
         packet.writePos(worldPosition);
         packet.writeByte((byte) id);
         return packet;
@@ -286,25 +287,25 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
      * Write your data to said tag and finally return said tag.
      */
     @Override
-    public void writeToItemStack(CompoundTag nbt, boolean willHarvest) {
-        dataManager.writeToStackNBT(nbt);
-        savedItemDataObjects.forEach((tagName, serializable) -> nbt.put(tagName, serializable.serializeNBT()));
+    public void writeToItemStack(HolderLookup.Provider provider, CompoundTag nbt, boolean willHarvest) {
+        dataManager.writeToStackNBT(provider, nbt);
+        savedItemDataObjects.forEach((tagName, serializable) -> nbt.put(tagName, serializable.serializeNBT(provider)));
         CompoundTag capTags = capManager.serialize(true);
         if (!capTags.isEmpty()) {
             nbt.put("bc_caps", capTags);
         }
-        writeExtraTileAndStack(nbt);
+        writeExtraTileAndStack(provider, nbt);
     }
 
 
     @Override
-    public void readFromItemStack(CompoundTag nbt) {
-        dataManager.readFromStackNBT(nbt);
-        savedItemDataObjects.forEach((tagName, serializable) -> serializable.deserializeNBT(nbt.getCompound(tagName)));
+    public void readFromItemStack(HolderLookup.Provider provider, CompoundTag nbt) {
+        dataManager.readFromStackNBT(provider, nbt);
+        savedItemDataObjects.forEach((tagName, serializable) -> serializable.deserializeNBT(provider, nbt.getCompound(tagName)));
         if (nbt.contains("bc_caps")) {
-            capManager.deserialize(nbt.getCompound("bc_caps"));
+            capManager.deserialize(provider, nbt.getCompound("bc_caps"));
         }
-        readExtraTileAndStack(nbt);
+        readExtraTileAndStack(provider, nbt);
     }
 
     /**
@@ -313,7 +314,7 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
      * Note: This will not save data to the item when the block is harvested.<br>
      * For that you need to override read and writeToStack just be sure to pay attention to the doc for those.
      */
-    public void writeExtraNBT(CompoundTag nbt) {
+    public void writeExtraNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         CompoundTag capTags = capManager.serialize(false);
         if (!capTags.isEmpty()) {
             nbt.put("bc_caps", capTags);
@@ -323,49 +324,49 @@ public class TileBCore extends BlockEntity implements IDataManagerProvider, IDat
             nbt.putString("custom_name", customName);
         }
 
-        savedDataObjects.forEach((tagName, serializable) -> nbt.put(tagName, serializable.serializeNBT()));
-        writeExtraTileAndStack(nbt);
+        savedDataObjects.forEach((tagName, serializable) -> nbt.put(tagName, serializable.serializeNBT(provider)));
+        writeExtraTileAndStack(provider, nbt);
     }
 
-    public void readExtraNBT(CompoundTag nbt) {
+    public void readExtraNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         if (nbt.contains("bc_caps")) {
-            capManager.deserialize(nbt.getCompound("bc_caps"));
+            capManager.deserialize(provider, nbt.getCompound("bc_caps"));
         }
 
         if (nbt.contains("custom_name", 8)) {
             customName = nbt.getString("custom_name");
         }
 
-        savedDataObjects.forEach((tagName, serializable) -> serializable.deserializeNBT(nbt.getCompound(tagName)));
-        readExtraTileAndStack(nbt);
+        savedDataObjects.forEach((tagName, serializable) -> serializable.deserializeNBT(provider, nbt.getCompound(tagName)));
+        readExtraTileAndStack(provider, nbt);
     }
 
     /**
      * Convenience method that is called by both
-     * {@link #writeExtraNBT(CompoundTag)} and
-     * {@link #writeToItemStack(CompoundTag, boolean)}
+     * {@link #writeExtraNBT(HolderLookup.Provider, CompoundTag)} and
+     * {@link #writeToItemStack(HolderLookup.Provider, CompoundTag, boolean)}
      */
-    public void writeExtraTileAndStack(CompoundTag nbt) {}
+    public void writeExtraTileAndStack(HolderLookup.Provider provider, CompoundTag nbt) {}
 
     /**
      * Convenience method that is called by both
-     * {@link #readExtraNBT(CompoundTag)} and
-     * {@link #readFromItemStack(CompoundTag)}
+     * {@link #readExtraNBT(HolderLookup.Provider, CompoundTag)} and
+     * {@link #readFromItemStack(HolderLookup.Provider, CompoundTag)}
      */
-    public void readExtraTileAndStack(CompoundTag nbt) {}
+    public void readExtraTileAndStack(HolderLookup.Provider provider, CompoundTag nbt) {}
 
     @Override
-    protected final void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
-        dataManager.writeToNBT(nbt);
-        writeExtraNBT(nbt);
+    protected final void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.saveAdditional(nbt, provider);
+        dataManager.writeToNBT(provider, nbt);
+        writeExtraNBT(provider, nbt);
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
-        dataManager.readFromNBT(nbt);
-        readExtraNBT(nbt);
+    protected final void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadAdditional(nbt, provider);
+        dataManager.readFromNBT(provider, nbt);
+        readExtraNBT(provider, nbt);
         onTileLoaded();
     }
 

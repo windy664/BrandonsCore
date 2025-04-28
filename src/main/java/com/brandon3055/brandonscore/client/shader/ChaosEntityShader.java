@@ -20,7 +20,7 @@ public final class ChaosEntityShader extends BCShader<ChaosEntityShader> {
     private CCUniform disableOverlayUniform;
 
     public ChaosEntityShader(String path, VertexFormat format) {
-        super(new ResourceLocation(BrandonsCore.MODID, path), format);
+        super(ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, path), format);
     }
 
     public ChaosEntityShader(ResourceLocation location, VertexFormat format) {

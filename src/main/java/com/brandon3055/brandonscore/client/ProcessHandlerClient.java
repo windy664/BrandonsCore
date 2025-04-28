@@ -4,8 +4,8 @@ import com.brandon3055.brandonscore.handlers.IProcess;
 import com.brandon3055.brandonscore.utils.BCProfiler;
 import net.covers1624.quack.util.CrashLock;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
 import java.util.ArrayList;
@@ -37,47 +37,43 @@ public class ProcessHandlerClient {
     }
 
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            BCProfiler.TICK.start("process_handler");
-            while (!syncTasks.isEmpty()) {
-                syncTasks.poll().run();
-            }
-
-            Iterator<IProcess> i = processes.iterator();
-            while (i.hasNext()) {
-                IProcess process = i.next();
-                if (process.isDead()) {
-                    i.remove();
-                }
-                else {
-                    process.updateProcess();
-                }
-            }
-
-            if (!newProcesses.isEmpty()) {
-                processes.addAll(newProcesses);
-                newProcesses.clear();
-            }
-
-
-            i = persistentProcesses.iterator();
-            while (i.hasNext()) {
-                IProcess process = i.next();
-                if (process.isDead()) {
-                    i.remove();
-                }
-                else {
-                    process.updateProcess();
-                }
-            }
-
-            if (!newPersistentProcesses.isEmpty()) {
-                persistentProcesses.addAll(newPersistentProcesses);
-                newPersistentProcesses.clear();
-            }
-            BCProfiler.TICK.stop();
+    public void onClientTick(ClientTickEvent.Pre event) {
+        BCProfiler.TICK.start("process_handler");
+        while (!syncTasks.isEmpty()) {
+            syncTasks.poll().run();
         }
+
+        Iterator<IProcess> i = processes.iterator();
+        while (i.hasNext()) {
+            IProcess process = i.next();
+            if (process.isDead()) {
+                i.remove();
+            } else {
+                process.updateProcess();
+            }
+        }
+
+        if (!newProcesses.isEmpty()) {
+            processes.addAll(newProcesses);
+            newProcesses.clear();
+        }
+
+
+        i = persistentProcesses.iterator();
+        while (i.hasNext()) {
+            IProcess process = i.next();
+            if (process.isDead()) {
+                i.remove();
+            } else {
+                process.updateProcess();
+            }
+        }
+
+        if (!newPersistentProcesses.isEmpty()) {
+            persistentProcesses.addAll(newPersistentProcesses);
+            newPersistentProcesses.clear();
+        }
+        BCProfiler.TICK.stop();
     }
 
     @SubscribeEvent

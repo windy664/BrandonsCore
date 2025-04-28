@@ -28,7 +28,7 @@ public class MultiBlockHelper {
     }
 
     public void setBlock(String name, Level world, BlockPos pos) {
-        Block block = BuiltInRegistries.BLOCK.get(new ResourceLocation(name));
+        Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(name));
         if (block != Blocks.AIR) {
             world.setBlockAndUpdate(pos, block.defaultBlockState());
         } else {

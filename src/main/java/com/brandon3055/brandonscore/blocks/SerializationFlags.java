@@ -2,7 +2,9 @@ package com.brandon3055.brandonscore.blocks;
 
 import com.brandon3055.brandonscore.lib.IMCDataSerializable;
 import com.brandon3055.brandonscore.lib.IValueHashable;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 /**
@@ -11,6 +13,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 public class SerializationFlags<D extends INBTSerializable<CompoundTag>> {
     protected final String tagName;
     protected final D serializableInstance;
+    protected final Level level;
     protected Object lastData;
 
     protected boolean saveTile = false;
@@ -18,15 +21,16 @@ public class SerializationFlags<D extends INBTSerializable<CompoundTag>> {
     protected boolean syncTile = false;
     protected boolean syncContainer = false;
 
-    public SerializationFlags(String tagName, D serializableInstance) {
+    public SerializationFlags(String tagName, D serializableInstance, Level level) {
         this.tagName = tagName;
         this.serializableInstance = serializableInstance;
+        this.level = level;
 
-        if (serializableInstance instanceof IValueHashable) {
-            lastData = ((IValueHashable) serializableInstance).getValueHash();
+        if (serializableInstance instanceof IValueHashable<?> hashable) {
+            lastData = hashable.getValueHash();
             syncContainer = true;
         } else {
-            lastData = serializableInstance.serializeNBT();
+            lastData = serializableInstance.serializeNBT(level.registryAccess());
         }
     }
 
@@ -79,17 +83,17 @@ public class SerializationFlags<D extends INBTSerializable<CompoundTag>> {
     }
 
     protected boolean hasChanged(boolean reset) {
-        if (serializableInstance instanceof IValueHashable) {
-            if (!((IValueHashable) serializableInstance).checkValueHash(lastData)) {
+        if (serializableInstance instanceof IValueHashable<?> hashable) {
+            if (!hashable.checkValueHash(lastData)) {
                 if (reset) {
-                    lastData = ((IValueHashable) serializableInstance).getValueHash();
+                    lastData = hashable.getValueHash();
                 }
                 return true;
             }
         } else {
-            if (!serializableInstance.serializeNBT().equals(lastData)) {
+            if (!serializableInstance.serializeNBT(level.registryAccess()).equals(lastData)) {
                 if (reset) {
-                    lastData = serializableInstance.serializeNBT();
+                    lastData = serializableInstance.serializeNBT(level.registryAccess());
                 }
                 return true;
             }

@@ -12,7 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 
 /**
@@ -65,11 +64,11 @@ public class BCShaders {
         BADGE_CORE_SHADER.register(modBus);
         BADGE_FOIL_SHADER.register(modBus);
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(BCShaders::onRegisterShaders);
+        modBus.addListener(BCShaders::onRegisterShaders);
     }
 
     private static void onRegisterShaders(RegisterShadersEvent event) {
-        event.registerShader(CCShaderInstance.create(event.getResourceProvider(), new ResourceLocation(BrandonsCore.MODID, "energy_bar"), DefaultVertexFormat.POSITION), e -> {
+        event.registerShader(CCShaderInstance.create(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, "energy_bar"), DefaultVertexFormat.POSITION), e -> {
             energyBarShader = (CCShaderInstance) e;
             energyBarTime = energyBarShader.getUniform("time");
             energyBarCharge = energyBarShader.getUniform("charge");
@@ -79,7 +78,7 @@ public class BCShaders {
             energyBarShader.onApply(() -> energyBarTime.glUniform1f(BCClientEventHandler.elapsedTicks / 10F));
         });
 
-        event.registerShader(CCShaderInstance.create(event.getResourceProvider(), new ResourceLocation(BrandonsCore.MODID, "position_color_tex_alpha0"), DefaultVertexFormat.POSITION_COLOR_TEX), e -> {
+        event.registerShader(CCShaderInstance.create(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, "position_color_tex_alpha0"), DefaultVertexFormat.POSITION_TEX_COLOR), e -> {
             posColourTexAlpha0 = (CCShaderInstance) e;
         });
     }

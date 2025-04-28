@@ -1,12 +1,10 @@
 package com.brandon3055.brandonscore.client;
 
-import codechicken.lib.CodeChickenLib;
 import codechicken.lib.colour.EnumColour;
 import codechicken.lib.render.RenderUtils;
 import codechicken.lib.render.buffer.TransformingVertexConsumer;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import com.brandon3055.brandonscore.BrandonsCore;
 import com.brandon3055.brandonscore.api.IFOVModifierItem;
 import com.brandon3055.brandonscore.blocks.BlockBCore;
 import com.brandon3055.brandonscore.client.render.BlockEntityRendererTransparent;
@@ -38,12 +36,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.ClientHooks;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 
 import java.util.*;
 
@@ -97,11 +91,7 @@ public class BCClientEventHandler {
     }
 
     @SubscribeEvent
-    public void tickEnd(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
-            return;
-        }
-
+    public void tickEnd(ClientTickEvent.Post event) {
         elapsedTicks++;
         if (Minecraft.getInstance().isPaused()) {
             return;
@@ -182,7 +172,7 @@ public class BCClientEventHandler {
                     BlockPos pos = tile.getBlockPos();
                     poseStack.pushPose();
                     poseStack.translate((double) pos.getX() - camX, (double) pos.getY() - camY, (double) pos.getZ() - camZ);
-                    renderTransparent(camera, rendererTransparent, tile, event.getPartialTick(), poseStack, buffers);
+                    renderTransparent(camera, rendererTransparent, tile, event.getPartialTick().getGameTimeDeltaPartialTick(false), poseStack, buffers);
                     poseStack.popPose();
                 }
             }
@@ -196,7 +186,7 @@ public class BCClientEventHandler {
                     BlockPos blockpos3 = tile.getBlockPos();
                     poseStack.pushPose();
                     poseStack.translate((double) blockpos3.getX() - camX, (double) blockpos3.getY() - camY, (double) blockpos3.getZ() - camZ);
-                    renderTransparent(camera, rendererTransparent, tile, event.getPartialTick(), poseStack, buffers);
+                    renderTransparent(camera, rendererTransparent, tile, event.getPartialTick().getGameTimeDeltaPartialTick(false), poseStack, buffers);
                     poseStack.popPose();
                 }
             }

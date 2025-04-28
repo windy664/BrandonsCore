@@ -295,14 +295,6 @@ public class LogHelperBC {
         logNBT(compound, false);
     }
 
-    public static void logNBTDev(ItemStack stack) {
-        logNBTDev(stack.getTag());
-    }
-
-    public static void logNBT(ItemStack stack) {
-        logNBTDev(stack.getTag());
-    }
-
     public static void logNBT(CompoundTag compound, boolean debug) {
         if (debug && (BrandonsCore.inDev || BCConfig.devLog)) {
             return;

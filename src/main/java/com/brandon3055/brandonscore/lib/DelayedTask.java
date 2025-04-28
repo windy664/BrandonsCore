@@ -4,8 +4,8 @@ import com.brandon3055.brandonscore.BrandonsCore;
 import com.brandon3055.brandonscore.client.ProcessHandlerClient;
 import com.brandon3055.brandonscore.handlers.IProcess;
 import com.brandon3055.brandonscore.handlers.ProcessHandler;
+import com.brandon3055.brandonscore.utils.Utils;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.DistExecutor;
 
 /**
  * Created by brandon3055 on 4/01/2018.
@@ -18,8 +18,8 @@ public class DelayedTask {
     }
 
     public static void sided(int delay, Runnable task) {
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ProcessHandlerClient.addProcess(new Task(delay, task)));
-        DistExecutor.safeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> ProcessHandler.addProcess(new Task(delay, task)));
+        Utils.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ProcessHandlerClient.addProcess(new Task(delay, task)));
+        Utils.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> ProcessHandler.addProcess(new Task(delay, task)));
     }
 
     public static void server(int delay, Runnable task) {

@@ -1,5 +1,6 @@
 package com.brandon3055.brandonscore.inventory;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
@@ -119,13 +120,13 @@ public class InventoryDynamic implements Container {
 
 
 
-    public void writeToNBT(CompoundTag compound) {
+    public void writeToNBT(HolderLookup.Provider provider, CompoundTag compound) {
         ListTag list = new ListTag();
 
         for (ItemStack stack : stacks) {
             if (!stack.isEmpty() && stack.getCount() > 0) {
                 CompoundTag tag = new CompoundTag();
-                stack.save(tag);
+                stack.save(provider, tag);
                 list.add(tag);
             }
         }
@@ -133,12 +134,12 @@ public class InventoryDynamic implements Container {
         compound.put("InvItems", list);
     }
 
-    public void readFromNBT(CompoundTag compound) {
+    public void readFromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         ListTag list = compound.getList("InvItems", 10);
         stacks.clear();
 
         for (int i = 0; i < list.size(); i++) {
-            stacks.add(ItemStack.of(list.getCompound(i)));
+            stacks.add(ItemStack.parseOptional(provider, list.getCompound(i)));
         }
     }
 

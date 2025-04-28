@@ -3,6 +3,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.vec.Vector3;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
@@ -97,7 +98,7 @@ public class ManagedVector3 extends AbstractManagedData<Vector3> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
         CompoundTag nbt = new CompoundTag();
         if (value == null) {
             nbt.putBoolean("null", true);
@@ -108,7 +109,7 @@ public class ManagedVector3 extends AbstractManagedData<Vector3> {
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
         if (!compound.contains(name, 10)) {
             value = defaultValue == null ? null : defaultValue.copy();
         } else {

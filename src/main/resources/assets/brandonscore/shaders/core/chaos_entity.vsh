@@ -39,7 +39,7 @@ void main() {
     fPos = (ModelViewMat * ModelMat * vec4(Position, 1.0)).xyz;
     gl_Position = ProjMat * ModelViewMat * ModelMat * vec4(Position, 1.0);
 
-    vertexDistance = fog_distance(ModelViewMat, IViewRotMat * Position, FogShape);
+    vertexDistance = fog_distance(IViewRotMat * Position, FogShape);
     if (DisableLight) {
         vertexColor = Color;
         lightMapColor = vec4(1.0);

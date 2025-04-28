@@ -7,6 +7,7 @@ import com.brandon3055.brandonscore.lib.IMCDataSerializable;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
 import com.brandon3055.brandonscore.utils.DataUtils;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -71,7 +72,7 @@ public class TileCapabilityManager {
      */
     public <T extends INBTSerializable<CompoundTag>> SerializationFlags<T> setManaged(String tagName, @Nonnull BlockCapability<?, Direction> cap, @Nonnull T capInstance, Direction... sides) {
         set(cap, capInstance, sides);
-        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance);
+        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance, tile.getLevel());
         serializableMap.put(capInstance, flags);
         indexedDataList.add(flags);
         return flags;
@@ -82,7 +83,7 @@ public class TileCapabilityManager {
          * @see #setManaged(String, BlockCapability, INBTSerializable, Direction...)
          */
     public <T extends INBTSerializable<CompoundTag>> SerializationFlags<T> setInternalManaged(String tagName, @Nonnull BlockCapability<?, Direction> cap, @Nonnull T capInstance) {
-        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance);
+        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance, tile.getLevel());
         serializableMap.put(capInstance, flags);
         indexedDataList.add(flags);
         return flags;
@@ -182,17 +183,17 @@ public class TileCapabilityManager {
         CompoundTag compound = new CompoundTag();
         for (SerializationFlags<?> helper : serializableMap.values()) {
             if ((forItem && helper.saveItem) || (!forItem && helper.saveTile)) {
-                compound.put(helper.tagName, helper.getData().serializeNBT());
+                compound.put(helper.tagName, helper.getData().serializeNBT(tile.getLevel().registryAccess()));
             }
         }
         return compound;
     }
 
     @SuppressWarnings("unchecked")
-    public void deserialize(CompoundTag compound) {
+    public void deserialize(HolderLookup.Provider provider, CompoundTag compound) {
         for (SerializationFlags<?> helper : serializableMap.values()) {
             if (compound.contains(helper.tagName)) {
-                helper.getData().deserializeNBT(compound.getCompound(helper.tagName));
+                helper.getData().deserializeNBT(provider, compound.getCompound(helper.tagName));
             }
         }
     }
@@ -220,13 +221,13 @@ public class TileCapabilityManager {
     }
 
     private PacketCustom createCapPacket(SerializationFlags<?> helper, int index) {
-        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_CAP_DATA);
+        PacketCustom packet = new PacketCustom(BCoreNetwork.CHANNEL_NAME, BCoreNetwork.C_TILE_CAP_DATA, tile.getLevel().registryAccess());
         packet.writePos(tile.getBlockPos());
         packet.writeInt(index);
         if (helper.getData() instanceof IMCDataSerializable) {
             ((IMCDataSerializable) helper.getData()).serializeMCD(packet);
         } else {
-            packet.writeCompoundNBT((CompoundTag) helper.getData().serializeNBT());
+            packet.writeCompoundNBT(helper.getData().serializeNBT(tile.getLevel().registryAccess()));
         }
         return packet;
     }
@@ -239,7 +240,7 @@ public class TileCapabilityManager {
             if (helper.getData() instanceof IMCDataSerializable) {
                 ((IMCDataSerializable) helper.getData()).deSerializeMCD(input);
             } else {
-                helper.getData().deserializeNBT(input.readCompoundNBT());
+                helper.getData().deserializeNBT(tile.getLevel().registryAccess(), input.readCompoundNBT());
             }
         }
     }

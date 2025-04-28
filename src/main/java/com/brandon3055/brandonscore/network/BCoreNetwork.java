@@ -11,7 +11,9 @@ import com.brandon3055.brandonscore.multiblock.MultiBlockManager;
 import com.brandon3055.brandonscore.utils.LogHelperBC;
 import net.covers1624.quack.util.CrashLock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
@@ -37,7 +39,7 @@ import java.util.Map;
 public class BCoreNetwork {
     private static final CrashLock LOCK = new CrashLock("Already Initialized.");
 
-    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(BrandonsCore.MODID + ":network");
+    public static final ResourceLocation CHANNEL_NAME = ResourceLocation.fromNamespaceAndPath(BrandonsCore.MODID, "network");
     public static final PacketCustomChannel CHANNEL = new PacketCustomChannel(CHANNEL_NAME)
             .optional()
             .versioned(BrandonsCore.container().getModInfo().getVersion().toString())
@@ -75,34 +77,34 @@ public class BCoreNetwork {
     }
 
     public static void sendNoClip(ServerPlayer player, boolean enabled) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_NO_CLIP);
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_NO_CLIP, player.registryAccess());
         packet.writeBoolean(enabled);
         packet.sendToPlayer(player);
         LogHelperBC.dev("Sending NoClip update to player: " + player + " Enabled: " + enabled);
     }
 
     public static void sendOpenPlayerAccessUI(ServerPlayer player, int windowID) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_PLAYER_ACCESS);
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_PLAYER_ACCESS, player.registryAccess());
         packet.writeInt(windowID);
         packet.sendToPlayer(player);
     }
 
     public static void sendPlayerAccessUIUpdate(ServerPlayer player, Player target) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_PLAYER_ACCESS_UPDATE);
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_PLAYER_ACCESS_UPDATE, player.registryAccess());
         packet.writeString(target.getGameProfile().getName());
         packet.writePos(target.blockPosition());
 //        packet.writeInt(target.dimension.getId());
 //        packet.sendToPlayer(player);
     }
 
-    public static void sendPlayerAccessButton(int button) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, S_PLAYER_ACCESS_BUTTON);
+    public static void sendPlayerAccessButton(int button, RegistryAccess registryAccess) {
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, S_PLAYER_ACCESS_BUTTON, registryAccess);
         packet.writeByte(button);
         packet.sendToServer();
     }
 
     public static void sendIndexedMessage(ServerPlayer player, Component message, MessageSignature signature) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_INDEXED_MESSAGE);
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_INDEXED_MESSAGE, player.registryAccess());
         packet.writeTextComponent(message);
         packet.writeBytes(signature.bytes());
         packet.sendToPlayer(player);
@@ -118,7 +120,7 @@ public class BCoreNetwork {
 
     public static void sendSound(Level level, BlockPos pos, SoundEvent sound, SoundSource category, float volume, float pitch, boolean distanceDelay) {
         if (level instanceof ServerLevel serverLevel) {
-            PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_PLAY_SOUND);
+            PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_PLAY_SOUND, level.registryAccess());
             packet.writePos(pos);
             packet.writeRegistryId(BuiltInRegistries.SOUND_EVENT, sound);
             packet.writeVarInt(category.ordinal());
@@ -131,9 +133,9 @@ public class BCoreNetwork {
 
     public static void sendParticle(Level level, ParticleOptions particleData, Vector3 pos, Vector3 motion, boolean distanceOverride) {
         if (level instanceof ServerLevel serverLevel) {
-            PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_SPAWN_PARTICLE);
-            packet.writeRegistryId(BuiltInRegistries.PARTICLE_TYPE, particleData.getType());
-            particleData.writeToNetwork(packet.toFriendlyByteBuf());
+            PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_SPAWN_PARTICLE, level.registryAccess());
+//            packet.writeRegistryId(BuiltInRegistries.PARTICLE_TYPE, particleData.getType());
+            ParticleTypes.STREAM_CODEC.encode(packet.toRegistryFriendlyByteBuf(), particleData);
             packet.writeVector(pos);
             packet.writeVector(motion);
             packet.writeBoolean(distanceOverride);
@@ -147,8 +149,8 @@ public class BCoreNetwork {
      * @param entity The entity being spawned.
      * @return A packet to return in {@link Entity#getAddEntityPacket()}
      */
-    public static Packet<?> getEntitySpawnPacket(Entity entity) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_SPAWN_ENTITY);
+    public static Packet<?> getEntitySpawnPacket(Entity entity, int data) {
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_SPAWN_ENTITY, entity.registryAccess());
         packet.writeRegistryId(BuiltInRegistries.ENTITY_TYPE, entity.getType());
         packet.writeInt(entity.getId());
         packet.writeUUID(entity.getUUID());
@@ -162,11 +164,12 @@ public class BCoreNetwork {
         packet.writeFloat((float) velocity.x);
         packet.writeFloat((float) velocity.y);
         packet.writeFloat((float) velocity.z);
+        packet.writeVarInt(data);
         return packet.toClientPacket();
     }
 
     public static Packet<?> sendEntityVelocity(Entity entity, boolean movement) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_ENTITY_VELOCITY);
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_ENTITY_VELOCITY, entity.registryAccess());
         packet.writeInt(entity.getId());
         packet.writeVec3f(entity.getDeltaMovement().toVector3f());
         packet.writeBoolean(movement);
@@ -179,11 +182,11 @@ public class BCoreNetwork {
     }
 
     public static void sendOpenHudConfig(ServerPlayer player) {
-        new PacketCustom(CHANNEL_NAME, C_OPEN_HUD_CONFIG).sendToPlayer(player);
+        new PacketCustom(CHANNEL_NAME, C_OPEN_HUD_CONFIG, player.registryAccess()).sendToPlayer(player);
     }
 
     public static void sendMultiBlockDefinitions(ServerPlayer player, Map<ResourceLocation, MultiBlockDefinition> multiBlockMap) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_MULTI_BLOCK_DEFINITIONS);
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_MULTI_BLOCK_DEFINITIONS, player.registryAccess());
         packet.writeVarInt(multiBlockMap.size());
         multiBlockMap.forEach((key, value) -> {
             packet.writeResourceLocation(key);
@@ -192,8 +195,8 @@ public class BCoreNetwork {
         packet.sendToPlayer(player);
     }
 
-    public static void sendContributorConfigToServer(ContributorProperties props) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, S_CONTRIBUTOR_CONFIG);
+    public static void sendContributorConfigToServer(ContributorProperties props, RegistryAccess registryAccess) {
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, S_CONTRIBUTOR_CONFIG, registryAccess);
         if (props.isContributor()) {
             props.getConfig().serialize(packet);
             packet.sendToServer();
@@ -201,15 +204,15 @@ public class BCoreNetwork {
 //        BrandonsCore.LOGGER.info("sendContributorConfigToServer");
     }
 
-    public static PacketCustom contributorConfigToClient(ContributorProperties props) {
-        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_CONTRIBUTOR_CONFIG);
+    public static PacketCustom contributorConfigToClient(ContributorProperties props, RegistryAccess registryAccess) {
+        PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_CONTRIBUTOR_CONFIG, registryAccess);
         packet.writeUUID(props.getUserID());
         props.getConfig().serialize(packet);
         return packet;
     }
 
-    public static void sendContribLinkToServer() {
-        new PacketCustom(CHANNEL_NAME, S_CONTRIBUTOR_LINK).sendToServer();
+    public static void sendContribLinkToServer(RegistryAccess registryAccess) {
+        new PacketCustom(CHANNEL_NAME, S_CONTRIBUTOR_LINK, registryAccess).sendToServer();
     }
 
     public static void sentToAllExcept(PacketCustom packet, Player exclude) {

@@ -11,9 +11,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 
@@ -29,7 +29,7 @@ import static com.brandon3055.brandonscore.BrandonsCore.MODID;
 public class WorldEntityHandler {
     private static final CrashLock LOCK = new CrashLock("Already Initialized.");
 
-    public static final ResourceKey<Registry<WorldEntityType<?>>> ENTITY_TYPE = ResourceKey.createRegistryKey(new ResourceLocation(MODID, "world_entity"));
+    public static final ResourceKey<Registry<WorldEntityType<?>>> ENTITY_TYPE = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(MODID, "world_entity"));
     public static Registry<WorldEntityType<?>> REGISTRY;
     private static final Map<UUID, WorldEntity> ID_ENTITY_MAP = new HashMap<>();
     private static final Map<ResourceKey<Level>, List<WorldEntity>> WORLD_ENTITY_MAP = new HashMap<>();
@@ -49,7 +49,8 @@ public class WorldEntityHandler {
         NeoForge.EVENT_BUS.addListener(WorldEntityHandler::worldLoad);
         NeoForge.EVENT_BUS.addListener(WorldEntityHandler::worldUnload);
         NeoForge.EVENT_BUS.addListener(WorldEntityHandler::onServerStop);
-        NeoForge.EVENT_BUS.addListener(WorldEntityHandler::worldTick);
+        NeoForge.EVENT_BUS.addListener((LevelTickEvent.Pre event) -> WorldEntityHandler.worldTick(event));
+        NeoForge.EVENT_BUS.addListener((LevelTickEvent.Post event) -> WorldEntityHandler.worldTick(event));
     }
 
     public static void worldLoad(LevelEvent.Load event) {
@@ -61,7 +62,7 @@ public class WorldEntityHandler {
         List<WorldEntity> oldEntities = WORLD_ENTITY_MAP.remove(key);
         TICKING_ENTITY_MAP.remove(key);
         if (oldEntities != null) {
-            LogHelperBC.warn("Detected stray world entities for world " + key.toString() + ". These should have been removed when the world unloaded.");
+            LogHelperBC.warn("Detected stray world entities for world " + key + ". These should have been removed when the world unloaded.");
             oldEntities.forEach(e -> ID_ENTITY_MAP.remove(e.getUniqueID()));
             WORLD_ENTITY_MAP.remove(key);
         }
@@ -95,10 +96,9 @@ public class WorldEntityHandler {
         ID_ENTITY_MAP.clear();
     }
 
-    public static void worldTick(TickEvent.LevelTickEvent event) {
-        if (!(event.level instanceof ServerLevel)) return;
-        Level world = event.level;
-        ResourceKey<Level> key = world.dimension();
+    public static void worldTick(LevelTickEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        ResourceKey<Level> key = level.dimension();
 
         //Clear dead entities
         ID_ENTITY_MAP.entrySet().removeIf(entry -> {
@@ -119,14 +119,14 @@ public class WorldEntityHandler {
         //Tick Tickable Entities
         if (TICKING_ENTITY_MAP.containsKey(key)) {
             TICKING_ENTITY_MAP.get(key).forEach(e -> {
-                if (e.getPhase() == event.phase) {
+                if (e.onTickEnd() == (event instanceof LevelTickEvent.Post)) {
                     e.tick();
                 }
             });
         }
 
         //Add New Entities
-        if (event.phase == TickEvent.Phase.END && ADDED_WORLD_ENTITIES.containsKey(key)) {
+        if (event instanceof LevelTickEvent.Post && ADDED_WORLD_ENTITIES.containsKey(key)) {
             List<WorldEntity> newEntities = ADDED_WORLD_ENTITIES.get(key);
             if (!newEntities.isEmpty()) {
                 List<WorldEntity> worldEntities = WORLD_ENTITY_MAP.computeIfAbsent(key, e -> new ArrayList<>());
@@ -146,8 +146,8 @@ public class WorldEntityHandler {
                     if (entity instanceof ITickableWorldEntity && !worldTickingEntities.contains(entity)) {
                         worldTickingEntities.add((ITickableWorldEntity) entity);
                     }
-                    if (entity.getLevel() != world) {
-                        entity.setLevel(world);
+                    if (entity.getLevel() != level) {
+                        entity.setLevel(level);
                     }
                     entity.onLoad();
                 }

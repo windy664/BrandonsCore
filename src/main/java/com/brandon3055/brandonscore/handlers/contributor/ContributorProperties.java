@@ -5,9 +5,10 @@ import com.brandon3055.brandonscore.api.TimeKeeper;
 import com.brandon3055.brandonscore.client.ClientOnly;
 import com.brandon3055.brandonscore.handlers.contributor.ContributorConfig.Badge;
 import com.brandon3055.brandonscore.network.BCoreNetwork;
+import com.brandon3055.brandonscore.utils.Utils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.DistExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -131,7 +132,7 @@ public class ContributorProperties {
             badges.clear();
         }
 
-        Player client = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientOnly::getClientPlayer);
+        Player client = Utils.unsafeCallWhenOn(Dist.CLIENT, () -> ClientOnly::getClientPlayer);
         if (client != null && client.getUUID().equals(userID)) {
             config = ContributorConfig.load();
             config.props = this;
@@ -167,7 +168,7 @@ public class ContributorProperties {
         if (!isContributor()) return;
         if (TimeKeeper.getClientTick() % 20 == 0 && getConfig().getResetSyncRequired()) {
 //            BrandonsCore.LOGGER.info("Contrib Props: clientTick: Send config");
-            BCoreNetwork.sendContributorConfigToServer(this);
+            BCoreNetwork.sendContributorConfigToServer(this, Minecraft.getInstance().level.registryAccess());
         }
         getAnim().tick();
         //Will do wing animation updates here

@@ -2,8 +2,8 @@ package com.brandon3055.brandonscore.handlers;
 
 import net.covers1624.quack.util.CrashLock;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,24 +30,21 @@ public class ProcessHandler {
         NeoForge.EVENT_BUS.addListener(ProcessHandler::onServerStop);
     }
 
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            Iterator<IProcess> i = processes.iterator();
+    public static void onServerTick(ServerTickEvent.Pre event) {
+        Iterator<IProcess> i = processes.iterator();
 
-            while (i.hasNext()) {
-                IProcess process = i.next();
-                if (process.isDead()) {
-                    i.remove();
-                }
-                else {
-                    process.updateProcess();
-                }
+        while (i.hasNext()) {
+            IProcess process = i.next();
+            if (process.isDead()) {
+                i.remove();
+            } else {
+                process.updateProcess();
             }
+        }
 
-            if (!newProcesses.isEmpty()) {
-                processes.addAll(newProcesses);
-                newProcesses.clear();
-            }
+        if (!newProcesses.isEmpty()) {
+            processes.addAll(newProcesses);
+            newProcesses.clear();
         }
     }
 

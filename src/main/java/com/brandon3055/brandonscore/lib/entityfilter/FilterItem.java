@@ -2,6 +2,7 @@ package com.brandon3055.brandonscore.lib.entityfilter;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -140,7 +141,7 @@ public class FilterItem extends FilterBase {
         if (isTagMode()) {
             match = stack.is(getTag());
         } else if (!filterStack.isEmpty()) {
-            match = fuzzyMatch ? ItemStack.isSameItem(filterStack, stack) : ItemStack.isSameItemSameTags(filterStack, stack) && (filterStack.getCount() == stack.getCount() || !matchCount);
+            match = fuzzyMatch ? ItemStack.isSameItem(filterStack, stack) : ItemStack.isSameItemSameComponents(filterStack, stack) && (filterStack.getCount() == stack.getCount() || !matchCount);
         }
 
         if (filterStack.isEmpty() && !isTagMode()) {
@@ -155,7 +156,7 @@ public class FilterItem extends FilterBase {
 
     public TagKey<Item> getTag() {
         if (tagCache == null) {
-            tagCache = ItemTags.create(new ResourceLocation(tagString));
+            tagCache = ItemTags.create(ResourceLocation.parse(tagString));
         }
         return tagCache;
     }
@@ -166,13 +167,13 @@ public class FilterItem extends FilterBase {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag compound = super.serializeNBT();
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag compound = super.serializeNBT(provider);
         compound.putBoolean("whitelist_mode", whitelistMode);
         compound.putString("tag_string", tagString);
         compound.putBoolean("tag_mode", tagMode);
         CompoundTag tag = new CompoundTag();
-        filterStack.save(tag);
+        filterStack.save(provider, tag);
         compound.put("filter_stack", tag);
         compound.putBoolean("fuzzy_match", fuzzyMatch);
         compound.putBoolean("match_count", matchCount);
@@ -182,12 +183,12 @@ public class FilterItem extends FilterBase {
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound) {
-        super.deserializeNBT(compound);
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compound) {
+        super.deserializeNBT(provider, compound);
         whitelistMode = compound.getBoolean("whitelist_mode");
         tagString = compound.getString("tag_string");
         tagMode = compound.getBoolean("tag_mode");
-        filterStack = ItemStack.of(compound.getCompound("filter_stack"));
+        filterStack = ItemStack.parseOptional(provider, compound.getCompound("filter_stack"));
         fuzzyMatch = compound.getBoolean("fuzzy_match");
         matchCount = compound.getBoolean("match_count");
         filterBlocks = compound.getBoolean("filter_blocks");

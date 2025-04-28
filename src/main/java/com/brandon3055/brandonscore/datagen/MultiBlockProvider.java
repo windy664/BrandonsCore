@@ -45,7 +45,7 @@ public abstract class MultiBlockProvider implements DataProvider {
 
         List<CompletableFuture<?>> futures = new LinkedList<>();
         for (String name : builtMultiBlocks.keySet()) {
-            futures.add(saveMultiBlock(pOutput, new ResourceLocation(modid, name), builtMultiBlocks.get(name)));
+            futures.add(saveMultiBlock(pOutput, ResourceLocation.fromNamespaceAndPath(modid, name), builtMultiBlocks.get(name)));
         }
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }

@@ -1,5 +1,6 @@
 package com.brandon3055.brandonscore.inventory;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -106,13 +107,13 @@ public class TileItemStackHandler extends ItemStackHandler {
 
     //I dont want this handler's size to be controlled by NBT
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         ListTag nbtTagList = new ListTag();
         for (int i = 0; i < stacks.size(); i++) {
             if (!stacks.get(i).isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
                 itemTag.putInt("Slot", i);
-                stacks.get(i).save(itemTag);
+                stacks.get(i).save(provider, itemTag);
                 nbtTagList.add(itemTag);
             }
         }
@@ -122,7 +123,7 @@ public class TileItemStackHandler extends ItemStackHandler {
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         stacks.clear();
         ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
         for (int i = 0; i < tagList.size(); i++) {
@@ -130,7 +131,7 @@ public class TileItemStackHandler extends ItemStackHandler {
             int slot = itemTags.getInt("Slot");
 
             if (slot >= 0 && slot < stacks.size()) {
-                stacks.set(slot, ItemStack.of(itemTags));
+                stacks.set(slot, ItemStack.parseOptional(provider, itemTags));
             }
         }
         onLoad();

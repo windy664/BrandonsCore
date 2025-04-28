@@ -10,6 +10,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.CommonHooks;
 
 import java.util.LinkedList;
@@ -119,9 +121,9 @@ public class TeleportUtils {
             return null;
         }
 
-        Entity movedEntity = entity.changeDimension(targetWorld);
+        Entity movedEntity = entity.changeDimension(new DimensionTransition(targetWorld, new Vec3(xCoord, yCoord, zCoord), entity.getDeltaMovement(), yaw, pitch, DimensionTransition.DO_NOTHING));
         if (movedEntity != null) {
-            movedEntity.moveTo(xCoord, yCoord, zCoord, yaw, pitch);
+//            movedEntity.moveTo(xCoord, yCoord, zCoord, yaw, pitch);
             return movedEntity;
         }
 

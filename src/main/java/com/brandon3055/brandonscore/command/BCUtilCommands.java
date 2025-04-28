@@ -40,6 +40,7 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.*;
@@ -60,6 +61,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -262,11 +264,10 @@ public class BCUtilCommands {
         ItemStack stack = HandHelper.getMainFirst(player);
         if (stack.isEmpty()) {
             throw new SimpleCommandExceptionType(Component.literal("You are not holding an item!")).create();
-        } else if (!stack.hasTag()) {
-            throw new SimpleCommandExceptionType(Component.literal("That stack has no NBT tag!")).create();
         }
 
-        CompoundTag compound = stack.getTag();
+        CompoundTag compound = new CompoundTag();
+        stack.save(player.registryAccess(), compound);
         LogHelperBC.logNBT(compound);
         LogHelperBC.info(compound);
         StringBuilder builder = new StringBuilder();
@@ -283,7 +284,7 @@ public class BCUtilCommands {
             throw new SimpleCommandExceptionType(Component.literal("You are not holding an item!")).create();
         }
 
-        String returnString = StringyStacks.toString(stack, nbt, count, caps);
+        String returnString = StringyStacks.toString(stack, nbt, count, caps, player.registryAccess());
         ChatHelper.sendMessage(player, Component.literal("# The following is stack string for the held stack (click to copy) #").withStyle(ChatFormatting.BLUE));
         MutableComponent textComponent = returnString.length() > 64 ? Component.literal(returnString.substring(0, 64) + "... ").withStyle(ChatFormatting.GOLD).append(Component.literal("(Mouseover for full)").withStyle(ChatFormatting.DARK_AQUA).withStyle(ChatFormatting.UNDERLINE)) : Component.literal(returnString).withStyle(ChatFormatting.GOLD);
         textComponent.setStyle(textComponent.getStyle().withHoverEvent(new HoverEvent(SHOW_TEXT, Component.literal("Click to copy to clipboard").withStyle(ChatFormatting.BLUE).append(Component.literal("\n" + returnString).withStyle(ChatFormatting.GRAY)))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, returnString)));
@@ -469,9 +470,9 @@ public class BCUtilCommands {
         }
 
         ItemStack spawnEgg = new ItemStack(SpawnEggItem.byId(entity.getType()));
-        CompoundTag data = entity.serializeNBT();
+        CompoundTag data = new CompoundTag();
+        entity.save(data);
 //        data.putString("id", String.valueOf(EntityList.getKey(entity)));
-        spawnEgg.addTagElement("EntityTag", data);
 
         data.remove("Pos");
         data.remove("Motion");
@@ -484,6 +485,9 @@ public class BCUtilCommands {
         data.remove("Invulnerable");
         data.remove("PortalCooldown");
         data.remove("UUID");
+
+//        spawnEgg.addTagElement("EntityTag", data);
+        spawnEgg.set(DataComponents.ENTITY_DATA, CustomData.of(data)); //TODO, Test Eggify
 
         InventoryUtils.givePlayerStack(player, spawnEgg);
         return 0;
@@ -686,10 +690,10 @@ public class BCUtilCommands {
     }
 
     public static void openPlayerAccessUI(MinecraftServer server, ServerPlayer player, Player playerAccess) {
-        player.nextContainerCounter();
-        player.doCloseContainer();
-        int windowId = player.containerCounter;
-        BCoreNetwork.sendOpenPlayerAccessUI(player, windowId);
+//        player.nextContainerCounter();
+//        player.doCloseContainer();
+//        int windowId = player.containerCounter;
+//        BCoreNetwork.sendOpenPlayerAccessUI(player, windowId);
         BCoreNetwork.sendPlayerAccessUIUpdate(player, playerAccess);
         player.openMenu(new MenuProvider() {
             @Override

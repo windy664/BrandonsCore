@@ -9,19 +9,17 @@ import com.brandon3055.brandonscore.handlers.BCEventHandler;
 import com.brandon3055.brandonscore.handlers.contributor.ContributorHandler;
 import com.brandon3055.brandonscore.lib.datamanager.IDataManagerProvider;
 import com.brandon3055.brandonscore.multiblock.MultiBlockManager;
-import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.NotImplementedException;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -103,9 +101,18 @@ public class ClientPacketHandler implements ICustomPacketHandler.IClientPacketHa
         byte pitch = packet.readByte();
         byte headYaw = packet.readByte();
         Vec3 velocity = new Vec3(packet.readFloat(), packet.readFloat(), packet.readFloat());
+        int data = packet.readVarInt();
         Entity entity = type.create(mc.level);
         if (entity == null) {
             return;
+        }
+
+        //THis is a hack, but meh. Should work.
+        if (entity instanceof Projectile projectile && data != 0) {
+            Entity e = mc.level.getEntity(data);
+            if (e != null) {
+                projectile.setOwner(entity);
+            }
         }
 
         entity.setPosRaw(posX, posY, posZ);
@@ -139,8 +146,8 @@ public class ClientPacketHandler implements ICustomPacketHandler.IClientPacketHa
         if (mc.level == null) {
             return;
         }
-        ParticleType<?> type = packet.readRegistryId();
-        ParticleOptions data = type.getDeserializer().fromNetwork(SneakyUtils.unsafeCast(type), packet.toFriendlyByteBuf());
+//        ParticleType<?> type = packet.readRegistryId();
+        ParticleOptions data = ParticleTypes.STREAM_CODEC.decode(packet.toRegistryFriendlyByteBuf());
         Vector3 pos = packet.readVector();
         Vector3 motion = packet.readVector();
         boolean distanceOverride = packet.readBoolean();

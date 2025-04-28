@@ -2,6 +2,7 @@ package com.brandon3055.brandonscore.lib.datamanager;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
@@ -101,13 +102,15 @@ public class ManagedStack extends AbstractManagedData<ItemStack> {
     }
 
     @Override
-    public void toNBT(CompoundTag compound) {
-        compound.put(name, value.save(new CompoundTag()));
+    public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
+        CompoundTag tag = new CompoundTag();
+        value.save(provider, tag);
+        compound.put(name, tag);
     }
 
     @Override
-    public void fromNBT(CompoundTag compound) {
-        value = ItemStack.of(compound.getCompound(name));
+    public void fromNBT(HolderLookup.Provider provider, CompoundTag compound) {
+        value = ItemStack.parseOptional(provider, compound.getCompound(name));
         notifyListeners(value);
     }
 

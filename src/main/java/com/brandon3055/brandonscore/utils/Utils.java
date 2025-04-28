@@ -7,15 +7,17 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -29,12 +31,14 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Created by Brandon on 25/07/2014.
  */
-@SuppressWarnings("ALL")
+@SuppressWarnings ("ALL")
 public class Utils {
 
     public static final String SELECT = "\u00A7";
@@ -324,7 +328,8 @@ public class Utils {
             if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 return (String) transferable.getTransferData(DataFlavor.stringFlavor);
             }
-        } catch (Exception var1) {}
+        } catch (Exception var1) {
+        }
 
         return "";
     }
@@ -542,6 +547,57 @@ public class Utils {
         byteBuffer.putLong(uuid.getMostSignificantBits());
         byteBuffer.putLong(uuid.getLeastSignificantBits());
         return new MessageSignature(byteBuffer.array());
+    }
+
+    @Deprecated
+    public static <T> T unsafeRunForDist(Supplier<Supplier<T>> clientTarget, Supplier<Supplier<T>> serverTarget) {
+        switch (FMLEnvironment.dist) {
+            case CLIENT:
+                return clientTarget.get().get();
+            case DEDICATED_SERVER:
+                return serverTarget.get().get();
+            default:
+                throw new IllegalArgumentException("UNSIDED?");
+        }
+    }
+
+    @Deprecated
+    public static void unsafeRunWhenOn(Dist dist, Supplier<Runnable> toRun) {
+        if (dist == FMLEnvironment.dist) {
+            toRun.get().run();
+        }
+    }
+
+    @Deprecated
+    public static <T> T unsafeCallWhenOn(Dist dist, Supplier<Callable<T>> toRun) {
+        if (dist == FMLEnvironment.dist) {
+            try {
+                return toRun.get().call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    @Deprecated
+    public static CompoundTag writeBlockPos(BlockPos p_129225_) {
+        CompoundTag compoundtag = new CompoundTag();
+        compoundtag.putInt("X", p_129225_.getX());
+        compoundtag.putInt("Y", p_129225_.getY());
+        compoundtag.putInt("Z", p_129225_.getZ());
+        return compoundtag;
+    }
+
+    @Deprecated
+    public static BlockPos readBlockPos(CompoundTag p_129240_) {
+        return new BlockPos(p_129240_.getInt("X"), p_129240_.getInt("Y"), p_129240_.getInt("Z"));
+    }
+
+    public static void loadOptionalMod(String modid, Supplier<Runnable> runnable) {
+        if (ModList.get().isLoaded(modid)) {
+            runnable.get().run();
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.brandon3055.brandonscore.lib;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -51,8 +52,8 @@ public class StringyStacks {
      * @param stackString The stack string
      * @return An item stack. Will default to empty stack if stack string is invalid.
      */
-    public static ItemStack fromString(final String stackString) {
-        return fromString(stackString, ItemStack.EMPTY);
+    public static ItemStack fromString(String stackString, HolderLookup.Provider provider) {
+        return fromString(stackString, ItemStack.EMPTY, provider);
     }
 
     /**
@@ -74,7 +75,7 @@ public class StringyStacks {
      * @param defaultIfInputInvalid The default stack to return iin the event the stack string is invalid. (This can be null)
      * @return An item stack. Will default to defaultIfInputInvalid stack if stack string is invalid.
      */
-    public static ItemStack fromString(final String stackString, @Nullable ItemStack defaultIfInputInvalid) {
+    public static ItemStack fromString(String stackString, @Nullable ItemStack defaultIfInputInvalid, HolderLookup.Provider provider) {
         if (stackString.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -153,7 +154,7 @@ public class StringyStacks {
             }
         }
 
-        ItemStack stack = ItemStack.of(stackNBT);
+        ItemStack stack = ItemStack.parseOptional(provider, stackNBT);
         if (stack == ItemStack.EMPTY) { //Specifically comparing to the EMPTY instance as that instance will be returned if an error occurs while loading the stack from NBT.
             return defaultIfInputInvalid;
         }
@@ -235,7 +236,7 @@ public class StringyStacks {
             }
         }
 
-        ResourceLocation registryName = new ResourceLocation(stackString);
+        ResourceLocation registryName = ResourceLocation.parse(stackString);
         Item item = BuiltInRegistries.ITEM.get(registryName);
         Block block = BuiltInRegistries.BLOCK.get(registryName);
         if (item == Items.AIR && block == Blocks.AIR) {
@@ -250,13 +251,13 @@ public class StringyStacks {
             itemStack.setDamageValue(meta);
 
             if (compound != null) {
-                itemStack.setTag(compound);
+//                itemStack.setTag(compound); TODO data components?
             }
             return itemStack;
         }
     }
 
-    public static String toString(ItemStack stack, boolean withNBT, boolean withCount, boolean withForgeCaps) {
+    public static String toString(ItemStack stack, boolean withNBT, boolean withCount, boolean withForgeCaps, HolderLookup.Provider provider) {
         if (stack.isEmpty()) {
             return "";
         }
@@ -264,7 +265,8 @@ public class StringyStacks {
         String stackString = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
         if (withNBT || withForgeCaps) {
-            CompoundTag stackTag = stack.save(new CompoundTag());
+            CompoundTag stackTag = new CompoundTag();
+            stack.save(provider, stackTag);
             CompoundTag nbt = null;
             CompoundTag caps = null;
             if (withNBT && stackTag.contains("tag", 10)) {
@@ -297,21 +299,21 @@ public class StringyStacks {
     /**
      * Includes everything except capabilities.
      * */
-    public static String toStringNoCaps(ItemStack stack) {
-        return toString(stack, true, true, false);
+    public static String toStringNoCaps(ItemStack stack, HolderLookup.Provider provider) {
+        return toString(stack, true, true, false, provider);
     }
 
     /**
      * Default toString Method includes all item data including capabilities if they are present.
      */
-    public static String toString(ItemStack stack) {
-        return toString(stack, true, true, true);
+    public static String toString(ItemStack stack, HolderLookup.Provider provider) {
+        return toString(stack, true, true, true, provider);
     }
 
     @Deprecated
     public static ItemStack legacyStackConverter(String itemString, int count, int damage, @Nullable CompoundTag nbt) {
         try {
-            ResourceLocation itemID = new ResourceLocation(itemString);
+            ResourceLocation itemID = ResourceLocation.parse(itemString);
             Item item = BuiltInRegistries.ITEM.get(itemID);
             Block block = BuiltInRegistries.BLOCK.get(itemID);
             if (item == Items.AIR && block == Blocks.AIR) {
@@ -326,7 +328,7 @@ public class StringyStacks {
                 itemStack.setDamageValue(damage);
 
                 if (nbt != null) {
-                    itemStack.setTag(nbt.copy());
+//                    itemStack.setTag(nbt.copy()); TODO data
                 }
                 return itemStack;
             }

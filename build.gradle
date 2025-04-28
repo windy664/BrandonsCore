@@ -74,7 +74,7 @@ processResources {
     inputs.property 'mc_version', mc_version
     inputs.property 'ccl_version', ccl_version
 
-    filesMatching('META-INF/mods.toml') {
+    filesMatching('META-INF/neoforge.mods.toml') {
         expand 'file': ['jarVersion': mod_version],
                 'mc_version': mc_version,
                 'neo_version': neo_version,
