@@ -3,62 +3,74 @@ package com.brandon3055.brandonscore.utils;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.vec.Vector3;
+import com.brandon3055.brandonscore.api.math.Vector2;
 import com.brandon3055.brandonscore.lib.TeleportUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
 
-public class TargetPos {
-    private Vector3 pos;
-    private float yaw;
-    private float pitch;
-    private boolean includeHeading = true;
-    private ResourceKey<Level> dimension;
+import javax.annotation.Nullable;
+import java.util.Optional;
 
-    public TargetPos() {}
+public record TargetPos(Vector3 pos, ResourceKey<Level> dimension, Optional<Vector2> facing) {
 
-    public TargetPos(Entity entity) {
-        this(entity, true);
+    public static final Codec<TargetPos> CODEC = RecordCodecBuilder.create(b -> b.group(
+            Vector3.CODEC.fieldOf("pos").forGetter(TargetPos::pos),
+            Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(TargetPos::dimension),
+            Vector2.CODEC.optionalFieldOf("facing").forGetter(TargetPos::facing)
+            ).apply(b, TargetPos::new)
+    );
+
+    public static final StreamCodec<ByteBuf, TargetPos> STREAM_CODEC = StreamCodec.composite(
+            Vector3.STREAM_CODEC, TargetPos::pos,
+            ResourceKey.streamCodec(Registries.DIMENSION), TargetPos::dimension,
+            ByteBufCodecs.optional(Vector2.STREAM_CODEC), TargetPos::facing,
+            TargetPos::new
+    );
+
+    public static TargetPos of(Entity entity) {
+        return of(entity, true);
     }
 
-    public TargetPos(CompoundTag nbt) {
-        readFromNBT(nbt);
+    public static TargetPos of(Entity entity, boolean includeHeading) {
+        return new TargetPos(Vector3.fromEntity(entity), entity.level().dimension(), includeHeading ? Optional.of(new Vector2(entity.getXRot(), entity.getYRot())) : Optional.empty());
     }
 
-    public TargetPos(Entity entity, boolean includeHeading) {
-        update(entity);
-        this.includeHeading = includeHeading;
+    public static TargetPos of(double x, double y, double z, ResourceKey<Level> dimension) {
+        return new TargetPos(new Vector3(x, y, z), dimension, Optional.empty());
     }
 
-    public TargetPos(double x, double y, double z, ResourceKey<Level> dimension) {
-        this(new Vector3(x, y, z), dimension);
+    public static TargetPos of(double x, double y, double z, ResourceKey<Level> dimension, Vec2 facing) {
+        return new TargetPos(new Vector3(x, y, z), dimension, Optional.of(new Vector2(facing)));
     }
 
-    public TargetPos(double x, double y, double z, ResourceKey<Level> dimension, float pitch, float yaw) {
-        this(new Vector3(x, y, z), dimension, pitch, yaw);
+    public static TargetPos of(Vector3 pos, ResourceKey<Level> dimension) {
+        return new TargetPos(pos, dimension, Optional.empty());
     }
 
-    public TargetPos(Vector3 pos, ResourceKey<Level> dimension) {
-        this(pos, dimension, 0, 0);
+    public static TargetPos of(Vector3 pos, ResourceKey<Level> dimension, Vec2 facing) {
+        return new TargetPos(pos, dimension, Optional.of(new Vector2(facing)));
     }
 
-    public TargetPos(Vector3 pos, ResourceKey<Level> dimension, float pitch, float yaw) {
-        this.pos = pos;
-        this.dimension = dimension;
-        this.pitch = pitch;
-        this.yaw = yaw;
+    public static TargetPos of(CompoundTag nbt) {
+        return readFromNBT(nbt);
     }
 
-    public void update(Entity player) {
-        pos = Vector3.fromEntity(player);
-        dimension = player.level().dimension();
-        pitch = player.getXRot();
-        yaw = player.getYRot();
-    }
 
     public double getX() {
         return pos.x;
@@ -80,13 +92,13 @@ public class TargetPos {
         return dimension;
     }
 
-    public float getPitch() {
-        return pitch;
-    }
-
-    public float getYaw() {
-        return yaw;
-    }
+//    public float getPitch() {
+//        return pitch;
+//    }
+//
+//    public float getYaw() {
+//        return yaw;
+//    }
 
     public String getReadableName(boolean fullDim) {
         return "X: " + (int) Math.floor(pos.x) +
@@ -95,54 +107,53 @@ public class TargetPos {
                 ", " + (fullDim ? dimension.location() : dimension.location().getPath());
     }
 
-    public TargetPos setIncludeHeading(boolean includeHeading) {
-        this.includeHeading = includeHeading;
-        return this;
-    }
-
-    public TargetPos setX(double x) {
-        pos.x = x;
-        return this;
-    }
-
-    public TargetPos setY(double y) {
-        pos.y = y;
-        return this;
-    }
-
-    public TargetPos setZ(double z) {
-        pos.z = z;
-        return this;
-    }
-
-    public TargetPos setPos(Vector3 pos) {
-        this.pos = pos;
-        return this;
-    }
-
-    public TargetPos setDimension(ResourceKey<Level> d) {
-        dimension = d;
-        return this;
-    }
-
-    public TargetPos setPitch(float p) {
-        pitch = p;
-        return this;
-    }
-
-    public TargetPos setYaw(float y) {
-        yaw = y;
-        return this;
-    }
+//    public TargetPos setIncludeHeading(boolean includeHeading) {
+//        this.includeHeading = includeHeading;
+//        return this;
+//    }
+//
+//    public TargetPos setX(double x) {
+//        pos.x = x;
+//        return this;
+//    }
+//
+//    public TargetPos setY(double y) {
+//        pos.y = y;
+//        return this;
+//    }
+//
+//    public TargetPos setZ(double z) {
+//        pos.z = z;
+//        return this;
+//    }
+//
+//    public TargetPos setPos(Vector3 pos) {
+//        this.pos = pos;
+//        return this;
+//    }
+//
+//    public TargetPos setDimension(ResourceKey<Level> d) {
+//        dimension = d;
+//        return this;
+//    }
+//
+//    public TargetPos setPitch(float p) {
+//        pitch = p;
+//        return this;
+//    }
+//
+//    public TargetPos setYaw(float y) {
+//        yaw = y;
+//        return this;
+//    }
 
     public CompoundTag writeToNBT(CompoundTag nbt) {
         pos.writeToNBT(nbt);
         nbt.putString("dim", dimension.location().toString());
-        nbt.putBoolean("heading", includeHeading);
-        if (includeHeading) {
-            nbt.putFloat("pitch", pitch);
-            nbt.putFloat("yaw", yaw);
-        }
+        facing.ifPresent(e -> {
+            nbt.putDouble("facing_x", e.x);
+            nbt.putDouble("facing_y", e.y);
+        });
         return nbt;
     }
 
@@ -150,39 +161,37 @@ public class TargetPos {
         return writeToNBT(new CompoundTag());
     }
 
-    public void readFromNBT(CompoundTag nbt) {
-        pos = Vector3.fromNBT(nbt);
-        dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(nbt.getString("dim")));
-        includeHeading = nbt.getBoolean("heading");
-        if (includeHeading) {
-            pitch = nbt.getFloat("pitch");
-            yaw = nbt.getFloat("yaw");
+    public static TargetPos readFromNBT(CompoundTag nbt) {
+        Vector3 pos = Vector3.fromNBT(nbt);
+        ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(nbt.getString("dim")));
+        if (nbt.contains("facing_x")) {
+            return new TargetPos(pos, dimension, Optional.of(new Vector2(nbt.getDouble("facing_x"), nbt.getDouble("facing_y"))));
         }
+        return new TargetPos(pos, dimension, Optional.empty());
     }
 
     public void write(MCDataOutput output) {
         output.writeVector(pos);
         output.writeResourceLocation(dimension.location());
-        output.writeBoolean(includeHeading);
-        if (includeHeading) {
-            output.writeFloat(pitch);
-            output.writeFloat(yaw);
-        }
+        output.writeBoolean(facing.isPresent());
+        facing.ifPresent(e -> {
+            output.writeDouble(e.x);
+            output.writeDouble(e.y);
+        });
     }
 
-    public void read(MCDataInput input) {
-        pos = input.readVector();
-        dimension = ResourceKey.create(Registries.DIMENSION, input.readResourceLocation());
-        includeHeading = input.readBoolean();
-        if (includeHeading) {
-            pitch = input.readFloat();
-            yaw = input.readFloat();
+    public static TargetPos read(MCDataInput input) {
+        Vector3 pos = input.readVector();
+        ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, input.readResourceLocation());
+        if (input.readBoolean()) {
+            return new TargetPos(pos, dimension, Optional.of(new Vector2(input.readDouble(), input.readDouble())));
         }
+        return new TargetPos(pos, dimension, Optional.empty());
     }
 
     public Entity teleport(Entity entity) {
-        if (includeHeading) {
-            return TeleportUtils.teleportEntity(entity, dimension, pos, yaw, pitch);
+        if (facing.isPresent()) {
+            return TeleportUtils.teleportEntity(entity, dimension, pos, (float) facing.get().y, (float) facing.get().x);
         }
         return TeleportUtils.teleportEntity(entity, dimension, pos);
     }

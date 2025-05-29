@@ -1,13 +1,19 @@
 package com.brandon3055.brandonscore.api;
 
+import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.Tier;
 
 import java.util.Locale;
+import java.util.function.IntFunction;
 
 import static net.minecraft.ChatFormatting.*;
 import static net.minecraft.world.item.Rarity.*;
@@ -47,7 +53,10 @@ public enum TechLevel implements StringRepresentable {
     CHAOTIC     (3, "chaotic",      DARK_PURPLE, EPIC,     512);
     //@formatter:on
 
-    public static final StringRepresentable.EnumCodec<TechLevel> CODEC = StringRepresentable.fromEnum(TechLevel::values);
+    public static final Codec<TechLevel> CODEC = StringRepresentable.fromValues(TechLevel::values);
+    public static final IntFunction<TechLevel> BY_ID = ByIdMap.continuous(e -> e.index, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+    public static final StreamCodec<ByteBuf, TechLevel> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, e -> e.index);
+
     public final int index;
     private final String name;
     private final ChatFormatting textColour;

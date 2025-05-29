@@ -35,6 +35,7 @@ public class BlockToStackHelper {
         NeoForge.EVENT_BUS.addListener(BlockToStackHelper::entityJoinWorld);
     }
 
+    //TODO This is probably still the most foolproof way to handle this, but we have BlockDropsEvent now so maybe we should look at switching to that?
     public static void entityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof ItemEntity && BlockToStackHelper.itemCollection != null && !event.isCanceled()) {
             BlockToStackHelper.itemCollection.add(((ItemEntity) event.getEntity()).getItem());
@@ -42,11 +43,11 @@ public class BlockToStackHelper {
         }
     }
 
-    public static List<ItemStack> breakAndCollect(Level world, BlockPos pos, int xp) {
-        return breakAndCollectWithPlayer(world, pos, null, xp);
+    public static List<ItemStack> breakAndCollect(Level world, BlockPos pos) {
+        return breakAndCollectWithPlayer(world, pos, null);
     }
 
-    public static List<ItemStack> breakAndCollectWithPlayer(Level world, BlockPos pos, Player player, int xp) {
+    public static List<ItemStack> breakAndCollectWithPlayer(Level world, BlockPos pos, Player player) {
         List<ItemStack> stacks = new ArrayList<ItemStack>();
 
         if (!(world instanceof ServerLevel)) {
@@ -71,18 +72,18 @@ public class BlockToStackHelper {
         return stacks;
     }
 
-    public static void breakAndCollect(Level world, BlockPos pos, InventoryDynamic inventoryDynamic, int xp) {
-        breakAndCollectWithPlayer(world, pos, inventoryDynamic, null, xp);
+    public static void breakAndCollect(Level world, BlockPos pos, InventoryDynamic inventoryDynamic) {
+        breakAndCollectWithPlayer(world, pos, inventoryDynamic, null);
     }
 
-    public static void breakAndCollectWithPlayer(Level world, BlockPos pos, InventoryDynamic inventoryDynamic, Player player, int xp) {
-        List<ItemStack> stacks = breakAndCollectWithPlayer(world, pos, player, xp);
+    public static void breakAndCollectWithPlayer(Level world, BlockPos pos, InventoryDynamic inventoryDynamic, Player player) {
+        List<ItemStack> stacks = breakAndCollectWithPlayer(world, pos, player);
         for (ItemStack stack : stacks) {
             if (stack != null && !stack.isEmpty()){
                 InventoryUtils.insertItem(inventoryDynamic, stack, false);
             }
         }
-        inventoryDynamic.xp += xp;
+//        inventoryDynamic.xp += xp;
     }
 
     public static FakePlayer getHarvester(ServerLevel world) {

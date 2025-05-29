@@ -76,6 +76,10 @@ public class RenderUtils {
         return new Material(texture, texture, FullSprite::new);
     }
 
+    public static float partialTick() {
+        return Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+    }
+
     private static class FullSprite extends TextureAtlasSprite {
         private FullSprite(ResourceLocation location) {
             super(location, new SpriteContents(location, new FrameSize(1, 1), new NativeImage(1, 1, false), ResourceMetadata.EMPTY), 1, 1, 0, 0);

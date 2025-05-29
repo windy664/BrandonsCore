@@ -1,6 +1,14 @@
 package com.brandon3055.brandonscore.api.math;
 
+import codechicken.lib.vec.Vector3;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.phys.Vec2;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -8,6 +16,18 @@ import java.math.RoundingMode;
 
 //TODO move to CCL as soon as CCL gets a Vector2
 public class Vector2 {
+    public static final Codec<Vector2> CODEC = RecordCodecBuilder.create(b -> b.group(
+                    PrimitiveCodec.DOUBLE.fieldOf("x").forGetter(e -> e.x),
+                    PrimitiveCodec.DOUBLE.fieldOf("y").forGetter(e -> e.y)
+            ).apply(b, Vector2::new)
+    );
+
+    public static final StreamCodec<ByteBuf, Vector2> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.DOUBLE, e -> e.x,
+            ByteBufCodecs.DOUBLE, e -> e.y,
+            Vector2::new
+    );
+
     public double x;
     public double y;
 
@@ -22,6 +42,11 @@ public class Vector2 {
     public Vector2(Vector2 vec) {
         x = vec.x;
         y = vec.y;
+    }
+
+    public Vector2(Vec2 vec2) {
+        x = vec2.x;
+        y = vec2.y;
     }
 
     public static Vector2 fromNBT(CompoundTag tag) {

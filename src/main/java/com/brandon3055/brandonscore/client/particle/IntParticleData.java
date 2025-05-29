@@ -142,4 +142,8 @@ public class IntParticleData implements ParticleOptions {
     public ParticleType<IntParticleData> getType() {
         return type;
     }
+
+    public List<Integer> get() {
+        return data;
+    }
 }
