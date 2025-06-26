@@ -103,9 +103,7 @@ public class ManagedStack extends AbstractManagedData<ItemStack> {
 
     @Override
     public void toNBT(HolderLookup.Provider provider, CompoundTag compound) {
-        CompoundTag tag = new CompoundTag();
-        value.save(provider, tag);
-        compound.put(name, tag);
+        compound.put(name, value.saveOptional(provider));
     }
 
     @Override

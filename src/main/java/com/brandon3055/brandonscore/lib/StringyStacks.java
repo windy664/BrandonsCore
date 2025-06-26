@@ -265,8 +265,7 @@ public class StringyStacks {
         String stackString = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
         if (withNBT || withForgeCaps) {
-            CompoundTag stackTag = new CompoundTag();
-            stack.save(provider, stackTag);
+            CompoundTag stackTag = (CompoundTag) stack.saveOptional(provider);
             CompoundTag nbt = null;
             CompoundTag caps = null;
             if (withNBT && stackTag.contains("tag", 10)) {

@@ -72,7 +72,7 @@ public class TileCapabilityManager {
      */
     public <T extends INBTSerializable<CompoundTag>> SerializationFlags<T> setManaged(String tagName, @Nonnull BlockCapability<?, Direction> cap, @Nonnull T capInstance, Direction... sides) {
         set(cap, capInstance, sides);
-        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance, tile.getLevel());
+        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance);
         serializableMap.put(capInstance, flags);
         indexedDataList.add(flags);
         return flags;
@@ -83,7 +83,7 @@ public class TileCapabilityManager {
          * @see #setManaged(String, BlockCapability, INBTSerializable, Direction...)
          */
     public <T extends INBTSerializable<CompoundTag>> SerializationFlags<T> setInternalManaged(String tagName, @Nonnull BlockCapability<?, Direction> cap, @Nonnull T capInstance) {
-        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance, tile.getLevel());
+        SerializationFlags<T> flags = new SerializationFlags<>(tagName, capInstance);
         serializableMap.put(capInstance, flags);
         indexedDataList.add(flags);
         return flags;
@@ -192,6 +192,7 @@ public class TileCapabilityManager {
     @SuppressWarnings("unchecked")
     public void deserialize(HolderLookup.Provider provider, CompoundTag compound) {
         for (SerializationFlags<?> helper : serializableMap.values()) {
+            helper.lazyLoadDefault(provider);
             if (compound.contains(helper.tagName)) {
                 helper.getData().deserializeNBT(provider, compound.getCompound(helper.tagName));
             }
@@ -203,7 +204,7 @@ public class TileCapabilityManager {
     public void detectAndSendChanges() {
         for (int i = 0; i < indexedDataList.size(); i++) {
             SerializationFlags<?> helper = indexedDataList.get(i);
-            if (helper.syncTile && helper.hasChanged(true)) {
+            if (helper.syncTile && helper.hasChanged(true, tile.getLevel().registryAccess())) {
                 PacketCustom packet = createCapPacket(helper, i);
                 packet.sendToChunk(tile);
             }
@@ -213,7 +214,7 @@ public class TileCapabilityManager {
     public void detectAndSendChangesToListeners(Collection<Player> listeners) {
         for (int i = 0; i < indexedDataList.size(); i++) {
             SerializationFlags<?> helper = indexedDataList.get(i);
-            if (helper.syncContainer && helper.hasChanged(true)) {
+            if (helper.syncContainer && helper.hasChanged(true, tile.getLevel().registryAccess())) {
                 PacketCustom packet = createCapPacket(helper, i);
                 DataUtils.forEachMatch(listeners, p -> p instanceof ServerPlayer, p -> packet.sendToPlayer((ServerPlayer) p));
             }
