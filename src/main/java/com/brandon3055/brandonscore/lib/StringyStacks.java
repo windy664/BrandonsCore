@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
  * <p>
  * Created by brandon3055 on 23/01/2022
  */
+@Deprecated //use StackHelper
 public class StringyStacks {
     public static final Logger LOGGER = LogManager.getLogger("StackConverter");
 
