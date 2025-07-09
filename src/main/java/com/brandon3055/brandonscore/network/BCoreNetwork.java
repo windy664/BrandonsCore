@@ -20,6 +20,7 @@ import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -149,22 +150,25 @@ public class BCoreNetwork {
      * @param entity The entity being spawned.
      * @return A packet to return in {@link Entity#getAddEntityPacket()}
      */
-    public static Packet<?> getEntitySpawnPacket(Entity entity, int data) {
+    public static Packet<?> getEntitySpawnPacket(Entity entity, ServerEntity serverEntity, int ownerId) {
         PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_SPAWN_ENTITY, entity.registryAccess());
-        packet.writeRegistryId(BuiltInRegistries.ENTITY_TYPE, entity.getType());
         packet.writeInt(entity.getId());
         packet.writeUUID(entity.getUUID());
-        packet.writeDouble(entity.getX());
-        packet.writeDouble(entity.getY());
-        packet.writeDouble(entity.getZ());
-        packet.writeByte((byte) Mth.floor(entity.getXRot() * 256.0F / 360.0F));
-        packet.writeByte((byte) Mth.floor(entity.getYRot() * 256.0F / 360.0F));
+
+        packet.writeDouble(serverEntity.getPositionBase().x());
+        packet.writeDouble(serverEntity.getPositionBase().y());
+        packet.writeDouble(serverEntity.getPositionBase().z());
+        packet.writeByte((byte) Mth.floor(serverEntity.getLastSentXRot() * 256.0F / 360.0F));
+        packet.writeByte((byte) Mth.floor(serverEntity.getLastSentYRot() * 256.0F / 360.0F));
         packet.writeByte((byte) (entity.getYHeadRot() * 256.0F / 360.0F));
+
+        packet.writeRegistryId(BuiltInRegistries.ENTITY_TYPE, entity.getType());
+        packet.writeVarInt(ownerId);
+
         Vec3 velocity = entity.getDeltaMovement();
         packet.writeFloat((float) velocity.x);
         packet.writeFloat((float) velocity.y);
         packet.writeFloat((float) velocity.z);
-        packet.writeVarInt(data);
         return packet.toClientPacket();
     }
 

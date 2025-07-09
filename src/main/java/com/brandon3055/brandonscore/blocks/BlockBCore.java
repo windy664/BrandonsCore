@@ -43,8 +43,7 @@ import java.util.List;
  * This is the base block class form all blocks.
  */
 public class BlockBCore extends Block implements IBCoreBlock {
-    //Cant register my own data without breaking server side compat, and cant use BLOCK_ENTITY_DATA, because vanilla would try to handle that, so ENTITY_DATA! Probably fine... As long as not random mods step in and do random shit to any item that happens to have ENTITY_DATA...
-    public static final DataComponentType<CustomData> BC_TILE_DATA_TAG = DataComponents.ENTITY_DATA;
+    public static final DataComponentType<CustomData> BC_TILE_DATA_TAG = DataComponents.CUSTOM_DATA;
 //    public static final String BC_TILE_DATA_TAG = "bc_tile_data";
     public static final String BC_MANAGED_DATA_FLAG = "bc_managed_data"; //Seemed like as good a place as any to put this.
 

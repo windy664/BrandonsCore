@@ -13,9 +13,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -86,43 +88,64 @@ public class ClientPacketHandler implements ICustomPacketHandler.IClientPacketHa
         mc.level.playLocalSound(pos, sound, category, volume, pitch, distanceDelay);
     }
 
+//    PacketCustom packet = new PacketCustom(CHANNEL_NAME, C_SPAWN_ENTITY, entity.registryAccess());
+//        packet.writeInt(entity.getId());
+//        packet.writeUUID(entity.getUUID());
+//
+//        packet.writeDouble(serverEntity.getPositionBase().x());
+//        packet.writeDouble(serverEntity.getPositionBase().y());
+//        packet.writeDouble(serverEntity.getPositionBase().z());
+//        packet.writeByte((byte) Mth.floor(serverEntity.getLastSentXRot() * 256.0F / 360.0F));
+//        packet.writeByte((byte) Mth.floor(serverEntity.getLastSentYRot() * 256.0F / 360.0F));
+//        packet.writeByte((byte) (entity.getYHeadRot() * 256.0F / 360.0F));
+//
+//        packet.writeRegistryId(BuiltInRegistries.ENTITY_TYPE, entity.getType());
+//        packet.writeVarInt(ownerId);
+//
+//    Vec3 velocity = entity.getDeltaMovement();
+//        packet.writeFloat((float) velocity.x);
+//        packet.writeFloat((float) velocity.y);
+//        packet.writeFloat((float) velocity.z);
+
     private static void handleEntitySpawn(PacketCustom packet, Minecraft mc) {
         if (mc.level == null) {
             return;
         }
-
-        EntityType<?> type = packet.readRegistryId();//ForgeRegistries.ENTITY_TYPES.byId(packet.readVarInt());
         int entityID = packet.readInt();
         UUID uuid = packet.readUUID();
+
         double posX = packet.readDouble();
         double posY = packet.readDouble();
         double posZ = packet.readDouble();
-        byte yaw = packet.readByte();
-        byte pitch = packet.readByte();
-        byte headYaw = packet.readByte();
+        byte xRot = packet.readByte();
+        byte yRot = packet.readByte();
+        byte headYRot = packet.readByte();
+
+        EntityType<?> type = packet.readRegistryId();//ForgeRegistries.ENTITY_TYPES.byId(packet.readVarInt());
+        int ownerId = packet.readVarInt();
         Vec3 velocity = new Vec3(packet.readFloat(), packet.readFloat(), packet.readFloat());
-        int data = packet.readVarInt();
+
         Entity entity = type.create(mc.level);
         if (entity == null) {
             return;
         }
 
-        //THis is a hack, but meh. Should work.
-        if (entity instanceof Projectile projectile && data != 0) {
-            Entity e = mc.level.getEntity(data);
+        //This is a hack, but meh. Should work.
+        if (entity instanceof Projectile projectile && ownerId != 0) {
+            Entity e = mc.level.getEntity(ownerId);
             if (e != null) {
                 projectile.setOwner(entity);
             }
         }
 
-        entity.setPosRaw(posX, posY, posZ);
-        entity.absMoveTo(posX, posY, posZ, (pitch * 360) / 256.0F, (yaw * 360) / 256.0F);
-        entity.setYHeadRot((headYaw * 360) / 256.0F);
-        entity.setYBodyRot((headYaw * 360) / 256.0F);
+        entity.setDeltaMovement(velocity);
+        entity.syncPacketPositionCodec(posX, posY, posZ);
+        entity.moveTo(posX, posY, posZ);
+        entity.setXRot(xRot);
+        entity.setYRot(yRot);
         entity.setId(entityID);
         entity.setUUID(uuid);
         mc.level.addEntity(entity);
-        entity.lerpMotion(velocity.x, velocity.y, velocity.z);
     }
 
     private static void handleEntityVelocity(PacketCustom packet, Minecraft mc) {
